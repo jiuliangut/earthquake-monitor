@@ -1,7 +1,6 @@
 '''Module that queries all the earthquake API and stores all of the wanted data'''
 import requests
-from datetime import datetime, timedelta
-import time
+from datetime import datetime
 
 URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
 
