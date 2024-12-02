@@ -33,9 +33,14 @@ jobs:
       - name: Run pylint and save score
         id: pylint
         run: |
-          pylint **/*.py --fail-under=8 > pylint-report.txt || true
-          score=$(grep -oP '(?<=Your code has been rated at )[^/]*' pylint-report.txt)
-          echo "PYLINT_SCORE=$score" >> $GITHUB_ENV
+          if ls **/*.py 1> /dev/null 2>&1; then
+            pylint **/*.py --fail-under=8 > pylint-report.txt || true
+            score=$(grep -oP '(?<=Your code has been rated at )[^/]*' pylint-report.txt)
+            echo "PYLINT_SCORE=$score" >> $GITHUB_ENV
+          else
+            echo "No Python files found. Skipping pylint."
+          fi
+        
 
       - name: Generate badge
         run: |
