@@ -34,7 +34,7 @@ jobs:
         id: pylint
         run: |
           if ls **/*.py 1> /dev/null 2>&1; then
-            pylint **/*.py --fail-under=8 > pylint-report.txt || true
+            pylint **/*.py --fail-under=8 > pylint-report.txt
             score=$(grep -oP '(?<=Your code has been rated at )[^/]*' pylint-report.txt)
             echo "PYLINT_SCORE=$score" >> $GITHUB_ENV
           else
@@ -87,7 +87,7 @@ jobs:
       - name: Run pytest
         id: pytest
         run: |
-          pytest > test-results.txt || true
+          pytest > test-results.txt
           pass_count=$(grep -oP '(?<== )\d+(?= passed)' test-results.txt || echo "0")
           fail_count=$(grep -oP '(?<== )\d+(?= failed)' test-results.txt || echo "0")
           skip_count=$(grep -oP '(?<== )\d+(?= skipped)' test-results.txt || echo "0")
