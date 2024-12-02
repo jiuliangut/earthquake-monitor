@@ -26,6 +26,7 @@ def get_data() -> list[dict]:
                 "event_url": earthquake_data["properties"]["detail"],
                 "felt": earthquake_data["properties"]["felt"],
                 "location": earthquake_data["properties"]["place"],
+                "tsunami": earthquake_data["properties"]["tsunami"],
                 "magnitude": earthquake_data["properties"]["mag"],
                 "network": earthquake_data["properties"]["net"],
                 "alert": earthquake_data["properties"]["alert"],
