@@ -32,3 +32,14 @@ variable "C14_SUBNET_3"{
 variable C14_CLUSTER{
     type = string
 }
+
+variable "AWS_ACCESS_KEY" {
+  type = string
+}
+variable "AWS_SECRET_KEY" {
+  type = string
+}
+
+variable "ETL_ECR_URI" {
+    type = string
+}
