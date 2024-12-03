@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from unittest.mock import patch
 from datetime import datetime, timedelta
 from extract import get_data
@@ -98,11 +100,11 @@ def test_get_data_missing_fields(mock_get):
     assert result[0]["magnitude"] == 2.5
     assert result[0]["felt"] is None
     assert result[0]["alert"] is None
+    assert result[0]["latitude"] == -15.678
 
 
 @patch('extract.requests.get')
 def test_get_data_empty_response(mock_get):
-    # Mocking an empty response
     mock_response = {"features": []}
     mock_get.return_value.json.return_value = mock_response
 
