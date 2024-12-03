@@ -35,9 +35,10 @@ CREATE TABLE type (
 CREATE TABLE earthquakes (
     earthquake_id BIGINT GENERATED ALWAYS AS IDENTITY,
     time TIMESTAMPTZ NOT NULL,
-    tsunami BOOLEAN,
-    felt_report_count SMALLINT,
-    cdi DECIMAL,
+    tsunami BOOLEAN NOT NULL,
+    felt_report_count SMALLINT NOT NULL,
+    magnitude DECIMAL NOT NULL,
+    cdi DECIMAL NOT NULL,
     latitude DECIMAL NOT NULL,
     longitude DECIMAL NOT NULL,
     detail_url VARCHAR(255) UNIQUE NOT NULL,
@@ -49,7 +50,9 @@ CREATE TABLE earthquakes (
     FOREIGN KEY (alert_id) REFERENCES alerts(alert_id),
     FOREIGN KEY (magnitude_id) REFERENCES magnitude(magnitude_id),
     FOREIGN KEY (network_id) REFERENCES networks(network_id),
-    FOREIGN KEY (type_id) REFERENCES type(type_id)
+    FOREIGN KEY (type_id) REFERENCES type(type_id),
+    CONSTRAINT latitude_range CHECK (latitude BETWEEN -90.0 AND 90.0),
+    CONSTRAINT longitude_range CHECK (longitude BETWEEN -180.0 AND 180.0)
 );
 
 CREATE TABLE users (
@@ -60,7 +63,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE regions (
-    region_id BIGINT GENERATED ALWAYS AS IDENTITY,
+    region_id SMALLINT GENERATED ALWAYS AS IDENTITY,
     min_latitude DECIMAL NOT NULL,
     max_latitude DECIMAL NOT NULL,
     min_longitude DECIMAL NOT NULL,
@@ -72,7 +75,7 @@ CREATE TABLE regions (
 CREATE TABLE topics (
     topic_id SMALLINT GENERATED ALWAYS AS IDENTITY,
     min_magnitude_value SMALLINT NOT NULL,
-    region_id BIGINT,
+    region_id SMALLINT,
     PRIMARY KEY (topic_id),
     FOREIGN KEY (region_id) REFERENCES regions(region_id)
 );
@@ -159,9 +162,4 @@ INSERT INTO regions (min_latitude, max_latitude, min_longitude, max_longitude, r
 (60.0, 90.0, -60.0, 0.0, 'Northern Europe (Scandinavia)'),
 (60.0, 90.0, 0.0, 60.0, 'Northern Europe (Finland & Russia)'),
 (60.0, 90.0, 60.0, 120.0, 'Siberia & Eastern Russia'),
-(60.0, 90.0, 120.0, 180.0, 'Arctic Ocean & Siberia');
-
-
-
-
-
+(60.0, 90.1, 120.0, 180.1, 'Arctic Ocean & Siberia');
