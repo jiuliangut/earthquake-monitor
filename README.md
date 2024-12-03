@@ -62,7 +62,41 @@ Amazon SES ensures reliable email delivery for user reports and notifications, w
 
 ---
 
+## Quick-Start Guide
+
+Note: The following instructions are made from macOS perspective, these may not behave as expected under different operating systems. 
+
+### Prerequisites
+
+This project mainly runs using the Python programming language. To get started, ensure you have Python 3.10 (or above) installed.
+
+In your terminal:
+
+**Step 1:** Clone this repo to your local machine
+
+    ```sh
+    git clone https://github.com/jiuliangut/earthquake-monitor.git
+    ```
+
+**Step 2:** Navigate into the cloned repository:
+    ```sh
+    cd earthquake-monitor
+    ```
+
+**Step 3:** Set up the virtual environment:
+    ```sh
+    python3.10 -m venv .venv
+    source .venv/bin/activate
+    ```
+
+**Step 4:** Install all required dependencies from the `requirements.txt` file:
+    ```sh
+    pip3 install -r requirements.txt
+    ```
+
 ## Setup Overview
+
+For a more in-depth setup, please refer to the following:
 
 1. **Infrastructure:**
    - To provision the resources, please navigate to the [Terraform README](./terraform/README.md) in the `terraform` folder for a detailed step-by-step guide to setting up the necessary infrastructure. 
