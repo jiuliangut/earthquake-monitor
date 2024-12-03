@@ -63,10 +63,11 @@ def clean_data(earthquake_data: list[dict]) -> list[dict]:
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s')
 
-    if not isinstance(earthquake_data, list):
+    if not earthquake_data or not isinstance(earthquake_data, list):
         logging.error("Expected list for earthquake_data, got %s",
                       type(earthquake_data))
-        return []
+        raise ValueError(
+            "Earthquake data list is empty or not a list. Transformation cannot proceed.")
 
     logging.info("Cleaning earthquake data...")
     earthquake_df = pd.DataFrame(earthquake_data)
