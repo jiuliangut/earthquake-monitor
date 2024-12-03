@@ -26,7 +26,6 @@ def get_cursor(connect: connection) -> cursor:
 def get_foreign_key(db_cursor: psycopg2.extensions.cursor, table_name: str,
                     column_name: str, value: str) -> int:
     """ Gets foreign keys. """
-
     db_cursor.execute(
         f"SELECT * FROM {table_name} WHERE {column_name} = '{value}'")
     result = db_cursor.fetchone()
@@ -40,6 +39,12 @@ def insert_into_earthquake(db_conn: connection,
                            db_cursor: cursor,
                            earthquake_data: list[dict]) -> None:
     """Inserts cleaned data into the earthquake table."""
+    value_list = []
+
+    query = """
+            INSERT INTO earthquakes (time, tsunami, felt_report_count, magnitude, 
+                          cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, type_id) VALUES
+                          (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     for earthquake in earthquake_data:
         alert_id = get_foreign_key(
             db_cursor, 'alerts', 'alert_type', earthquake['alert'])
@@ -49,10 +54,7 @@ def insert_into_earthquake(db_conn: connection,
             db_cursor, 'networks', 'network_name', earthquake['network'])
         type_id = get_foreign_key(
             db_cursor, 'type', 'type_name', earthquake['type'])
-        query = """
-            INSERT INTO earthquakes (time, tsunami, felt_report_count, magnitude, 
-                          cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, type_id) VALUES
-                          (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+
         values = (
             earthquake['at'],
             bool(earthquake['tsunami']),
@@ -67,9 +69,11 @@ def insert_into_earthquake(db_conn: connection,
             network_id,
             type_id
         )
-        db_cursor.execute(query, values)
 
-        db_conn.commit()
+        value_list.append(values)
+    db_cursor.executemany(query, value_list)
+
+    db_conn.commit()
 
 
 if __name__ == "__main__":
