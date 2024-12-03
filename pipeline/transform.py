@@ -110,7 +110,8 @@ def validate_data(earthquake_df: pd.DataFrame) -> pd.DataFrame:
 
     columns_to_exclude = ["latitude_valid",
                           "longitude_valid", "magnitude_valid", "cdi_valid"]
-    valid_earthquake_df.drop(columns=columns_to_exclude, inplace=True)
+
+    valid_earthquake_df = valid_earthquake_df.drop(columns=columns_to_exclude)
 
     logging.info("Data validation complete.")
     return valid_earthquake_df
