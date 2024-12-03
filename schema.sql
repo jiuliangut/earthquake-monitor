@@ -37,9 +37,9 @@ CREATE TABLE earthquakes (
     time TIMESTAMPTZ NOT NULL,
     tsunami BOOLEAN,
     felt_report_count SMALLINT,
-    cdi FLOAT,
-    latitude FLOAT NOT NULL,
-    longitude FLOAT NOT NULL,
+    cdi DECIMAL,
+    latitude DECIMAL NOT NULL,
+    longitude DECIMAL NOT NULL,
     detail_url VARCHAR(255) UNIQUE NOT NULL,
     alert_id SMALLINT,
     magnitude_id SMALLINT,
@@ -61,10 +61,10 @@ CREATE TABLE users (
 
 CREATE TABLE regions (
     region_id BIGINT GENERATED ALWAYS AS IDENTITY,
-    min_latitude FLOAT NOT NULL,
-    max_latitude FLOAT NOT NULL,
-    min_longitude FLOAT NOT NULL,
-    max_longitude FLOAT NOT NULL,
+    min_latitude DECIMAL NOT NULL,
+    max_latitude DECIMAL NOT NULL,
+    min_longitude DECIMAL NOT NULL,
+    max_longitude DECIMAL NOT NULL,
     region_name VARCHAR(100) UNIQUE NOT NULL,
     PRIMARY KEY (region_id)
 );
