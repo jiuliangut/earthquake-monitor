@@ -86,4 +86,82 @@ CREATE TABLE user_topic_assignment (
     FOREIGN KEY (topic_id) REFERENCES topics(topic_id)
 );
 
+INSERT INTO alerts (alert_type) VALUES 
+    ('green'), 
+    ('yellow'), 
+    ('orange'), 
+    ('red');
+
+INSERT INTO magnitude (magnitude_type) VALUES 
+    ('md'), 
+    ('ml'), 
+    ('ms'), 
+    ('mw'), 
+    ('me'), 
+    ('mi'), 
+    ('mb'), 
+    ('mlg');
+
+INSERT INTO networks (network_name) VALUES 
+    ('ak'), 
+    ('at'), 
+    ('ci'), 
+    ('hv'), 
+    ('ld'), 
+    ('mb'), 
+    ('nc'), 
+    ('nm'), 
+    ('nn'), 
+    ('pr'), 
+    ('pt'), 
+    ('se'), 
+    ('us'), 
+    ('uu'), 
+    ('uw');
+
+INSERT INTO type (type_name) VALUES 
+    ('earthquake'), 
+    ('quarry');
+
+INSERT INTO regions (min_latitude, max_latitude, min_longitude, max_longitude, region_name) VALUES
+(-90.0, -60.0, -180.0, -120.0, 'South Pacific Ocean'),
+(-90.0, -60.0, -120.0, -60.0, 'South America (Southern Cone)'),
+(-90.0, -60.0, -60.0, 0.0, 'Southern Brazil'),
+(-90.0, -60.0, 0.0, 60.0, 'South Atlantic Ocean'),
+(-90.0, -60.0, 60.0, 120.0, 'Southern Africa (Southern Ocean)'),
+(-90.0, -60.0, 120.0, 180.0, 'South Indian Ocean'),
+(-60.0, -30.0, -180.0, -120.0, 'Pacific Ocean (Chile & Peru)'),
+(-60.0, -30.0, -120.0, -60.0, 'Argentina & Uruguay'),
+(-60.0, -30.0, -60.0, 0.0, 'Southeast Brazil'),
+(-60.0, -30.0, 0.0, 60.0, 'West Africa (Gulf of Guinea)'),
+(-60.0, -30.0, 60.0, 120.0, 'Southern Madagascar & Mozambique'),
+(-60.0, -30.0, 120.0, 180.0, 'Indian Ocean (Mascarene Islands)'),
+(-30.0, 0.0, -180.0, -120.0, 'Equatorial Pacific Ocean'),
+(-30.0, 0.0, -120.0, -60.0, 'Coastal Ecuador & Colombia'),
+(-30.0, 0.0, -60.0, 0.0, 'Northern South America'),
+(-30.0, 0.0, 0.0, 60.0, 'Central Africa (Congo Basin)'),
+(-30.0, 0.0, 60.0, 120.0, 'East Africa (Kenya & Tanzania)'),
+(-30.0, 0.0, 120.0, 180.0, 'Indian Ocean (Comoros Islands)'),
+(0.0, 30.0, -180.0, -120.0, 'Eastern Pacific Ocean'),
+(0.0, 30.0, -120.0, -60.0, 'Colombia & Venezuela'),
+(0.0, 30.0, -60.0, 0.0, 'Caribbean Sea (Cuba, Jamaica)'),
+(0.0, 30.0, 0.0, 60.0, 'North Africa (Egypt & Libya)'),
+(0.0, 30.0, 60.0, 120.0, 'Eastern Mediterranean (Turkey, Cyprus)'),
+(0.0, 30.0, 120.0, 180.0, 'Central Asia (Uzbekistan)'),
+(30.0, 60.0, -180.0, -120.0, 'North Pacific Ocean'),
+(30.0, 60.0, -120.0, -60.0, 'Western United States (California)'),
+(30.0, 60.0, -60.0, 0.0, 'Eastern United States'),
+(30.0, 60.0, 0.0, 60.0, 'Western Europe (Iberian Peninsula)'),
+(30.0, 60.0, 60.0, 120.0, 'Central Europe (France & Germany)'),
+(30.0, 60.0, 120.0, 180.0, 'Eastern Russia & Kazakhstan'),
+(60.0, 90.0, -180.0, -120.0, 'Arctic Ocean'),
+(60.0, 90.0, -120.0, -60.0, 'Alaska & Canada'),
+(60.0, 90.0, -60.0, 0.0, 'Northern Europe (Scandinavia)'),
+(60.0, 90.0, 0.0, 60.0, 'Northern Europe (Finland & Russia)'),
+(60.0, 90.0, 60.0, 120.0, 'Siberia & Eastern Russia'),
+(60.0, 90.0, 120.0, 180.0, 'Arctic Ocean & Siberia');
+
+
+
+
 
