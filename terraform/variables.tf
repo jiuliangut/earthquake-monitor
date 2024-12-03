@@ -43,3 +43,11 @@ variable "AWS_SECRET_KEY" {
 variable "ETL_ECR_URI" {
     type = string
 }
+
+variable "DATA_UPLOAD_ECR_URI" {
+    type = string
+}
+
+variable "DASHBOARD_ECR_URI" {
+    type = string
+}
