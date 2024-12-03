@@ -16,16 +16,16 @@
 - **Query Parameters**:
   - `min_magnitude` (float, optional): Minimum magnitude 
   - `max_magnitude` (float, optional): Maximum magnitude 
-  - Ff only one is given, will give all earthquakes either above or below it
+  - If only one is given, will give all earthquakes either above or below it
 - **Example**: GET `/earthquakes/magnitude?min_magnitude=4.0&max_magnitude=7.0`
 
 
 ### 3. Get Earthquakes by Region
-- **Endpoint**: `GET /earthquakes/region_id`
+- **Endpoint**: `GET /earthquakes/region`
 - **Description**: Get all earthquakes occurring within a specific region
 - **Query Parameters**:
   - `region` (string, required): ID of the region (one of the 36 we have defined)
-- **Example**: GET `/earthquakes/region?region=3`
+- **Example**: GET `/earthquakes/region?region_id=3`
 
 
 ### 4. Get Earthquakes by Date
