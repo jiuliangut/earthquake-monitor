@@ -5,7 +5,7 @@
 
 ## Project Overview
 
-Earthquakes occur regularly, often with little warning, posing risks to life and property. Timely access to earthquake data, both real-time and historical, can empower individuals and organizations to make informed decisions, enhancing preparedness and response.
+Earthquakes occur regularly, often with little warning, posing risks to life and property. Timely access to earthquake data, both real-time and historical, can empower individuals and organisations to make informed decisions, enhancing preparedness and response.
 
 The Earthquake Monitor project continuously ingests real-time earthquake data from the USGS, providing users with dashboards, alerts, and reports. These tools help users stay informed, enabling timely responses to earthquake risks, and will hopefully also serve to be an effective tool for future research.
 
@@ -48,7 +48,10 @@ S3 offers highly durable and cost-effective storage for historical earthquake da
 8. **Lambda for Weekly Reports:**
 A second Lambda handles historical data archiving and report generation. It is cost-effective for periodic tasks and integrates seamlessly with SES to email reports to subscribed users.
 
-9. **SES for Email Notifications:**
+9. **AWS Step Functions + SNS:**
+Step Functions orchestrate user notification workflows, ensuring users are alerted based on custom criteria. SNS provides a scalable, easy-to-integrate solution for broadcasting notifications across multiple channels
+
+10. **SES for Email Notifications:**
 Amazon SES ensures reliable email delivery for user reports and notifications, with built-in support for monitoring delivery metrics and compliance.
 
 ---
@@ -74,8 +77,10 @@ Amazon SES ensures reliable email delivery for user reports and notifications, w
 
 ## Contributors
 
-Project Manager: [jiuliangut](https://github.com/jiuliangut)
-Quality Assurance: [Jakub-Poskrop](https://github.com/Jakub-Poskrop)
-Quality Assurance: [qrafiq1](https://github.com/qrafiq1)
-Architect: [Fahi28](https://github.com/Fahi28)
-Architect: [S1mpySloth](https://github.com/S1mpySloth)
+| Full Name          | GitHub Username                                           | Primary Role  | Secondary Role       |
+|--------------------|-----------------------------------------------------------|---------------|----------------------|
+| Jiulian Gutierrez  | [jiuliangut](https://github.com/jiuliangut)               | Data Engineer | Project Manager      |
+| Jakup Poskrop      | [Jakub-Poskrop](https://github.com/Jakub-Poskrop)         | Data Engineer | Quality Assurance    |
+| Qasim Rafiq        | [qrafiq1](https://github.com/qrafiq1)                     | Data Engineer | Quality Assurance    |
+| Fahad Rahman       | [Fahi28](https://github.com/Fahi28)                       | Data Engineer | Architect            |
+| Krishna Seechurn   | [S1mpySloth](https://github.com/S1mpySloth)               | Data Engineer | Architect            |
