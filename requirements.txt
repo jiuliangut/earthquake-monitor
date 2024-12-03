@@ -3,4 +3,5 @@ pylint
 pytest
 pytest-cov
 pandas
-pytest
+psycopg2-binary
+python-dotenv
