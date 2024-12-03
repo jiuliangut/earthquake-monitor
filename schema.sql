@@ -22,7 +22,7 @@ CREATE TABLE magnitude (
 
 CREATE TABLE networks (
     network_id SMALLINT GENERATED ALWAYS AS IDENTITY,
-    networK_name VARCHAR(2) UNIQUE NOT NULL,
+    network_name VARCHAR(2) UNIQUE NOT NULL,
     PRIMARY KEY (network_id)
 );
 
