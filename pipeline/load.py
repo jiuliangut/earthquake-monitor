@@ -41,8 +41,7 @@ def insert_into_earthquake(db_conn: connection,
     """Inserts cleaned data into the earthquake table."""
     value_list = []
 
-    query = """
-            INSERT INTO earthquakes (time, tsunami, felt_report_count, magnitude, 
+    query = """INSERT INTO earthquakes (time, tsunami, felt_report_count, magnitude, 
                           cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, type_id) VALUES
                           (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
     for earthquake in earthquake_data:
