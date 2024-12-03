@@ -76,9 +76,9 @@ DATA_UPLOAD_ECR_URI = "your_ecr_repo_uri"
 DASHBOARD_ECR_URI = "your_ecr_repo_uri"
 ```
 
-### Initialize Terraform
+### Initialise Terraform
 
-To initialize the Terraform environment, run:
+To initialise the Terraform environment, run:
 
 ```bash
 terraform init
