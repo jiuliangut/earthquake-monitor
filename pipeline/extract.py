@@ -20,21 +20,21 @@ def get_data() -> list[dict]:
         if (time_uploaded_at.hour != current_time.hour or
                 time_uploaded_at.minute < current_time.minute - 1):
             continue
-        if earthquake_data.get("properties"):
+        if earthquake_data.get("properties") and earthquake_data.get("geometry"):
             data.append({
                 "at": datetime.fromtimestamp(earthquake_data["properties"]["time"]/1000),
-                "event_url": earthquake_data["properties"]["detail"],
-                "felt": earthquake_data["properties"]["felt"],
-                "location": earthquake_data["properties"]["place"],
-                "tsunami": earthquake_data["properties"]["tsunami"],
-                "magnitude": earthquake_data["properties"]["mag"],
-                "network": earthquake_data["properties"]["net"],
-                "alert": earthquake_data["properties"]["alert"],
-                "magnitude_type": earthquake_data["properties"]["magType"],
-                "type": earthquake_data["properties"]["type"],
-                "cdi": earthquake_data["properties"]["cdi"],
-                "longitude": earthquake_data["geometry"]["coordinates"][0],
-                "latitude": earthquake_data["geometry"]["coordinates"][1]
+                "event_url": earthquake_data["properties"].get("detail"),
+                "felt": earthquake_data["properties"].get("felt"),
+                "location": earthquake_data["properties"].get("place"),
+                "tsunami": earthquake_data["properties"].get("tsunami"),
+                "magnitude": earthquake_data["properties"].get("mag"),
+                "network": earthquake_data["properties"].get("net"),
+                "alert": earthquake_data["properties"].get("alert"),
+                "magnitude_type": earthquake_data["properties"].get("magType"),
+                "type": earthquake_data["properties"].get("type"),
+                "cdi": earthquake_data["properties"].get("cdi"),
+                "longitude": earthquake_data["geometry"].get("coordinates")[0],
+                "latitude": earthquake_data["geometry"].get("coordinates")[1]
             })
     return data
 
