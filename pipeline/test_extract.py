@@ -3,6 +3,8 @@
 from unittest.mock import patch
 from datetime import datetime, timedelta
 from extract import get_data
+import pytest
+import requests
 
 
 @patch('extract.requests.get')
@@ -75,7 +77,7 @@ def test_get_data_no_recent_data(mock_get):
 
 
 @patch('extract.requests.get')
-def test_get_data_missing_fields(mock_get):
+def test_get_data_missing_fields_valid(mock_get):
     mock_response = {
         "features": [
             {
@@ -84,6 +86,7 @@ def test_get_data_missing_fields(mock_get):
                     "time": (datetime.now() - timedelta(seconds=30)).timestamp() * 1000,
                     "place": "Location C",
                     "mag": 2.5,
+                    "cdi": 0,
                 },
                 "geometry": {
                     "coordinates": [110.456, -15.678]
@@ -106,6 +109,38 @@ def test_get_data_missing_fields(mock_get):
 @patch('extract.requests.get')
 def test_get_data_empty_response(mock_get):
     mock_response = {"features": []}
+    mock_get.return_value.json.return_value = mock_response
+
+    result = get_data()
+
+    assert len(result) == 0
+    assert result == []
+
+
+@patch('extract.requests.get')
+def test_get_data_request_exception(mock_get):
+    with pytest.raises(requests.exceptions.RequestException):
+        mock_get.side_effect = requests.exceptions.RequestException(
+            "Request failed")
+
+        get_data()
+
+
+@patch('extract.requests.get')
+def test_get_data_empty_fields_in_data(mock_get):
+    mock_response = {
+        "features": [
+            {
+                "properties": {
+                    "updated": (datetime.now() - timedelta(seconds=30)).timestamp() * 1000,
+                    "time": (datetime.now() - timedelta(seconds=30)).timestamp() * 1000,
+                },
+                "geometry": {
+                    "coordinates": [None, None]
+                }
+            }
+        ]
+    }
     mock_get.return_value.json.return_value = mock_response
 
     result = get_data()
