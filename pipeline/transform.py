@@ -2,11 +2,15 @@
 Module that transforms the extracted data into the necessary format. 
 Ready to be loaded into the database
 '''
-import pandas as pd
 import datetime
+import pandas as pd
 
 
 def clean_data(earthquake_data: list[dict]) -> pd.DataFrame:
+    '''
+    Function to clean the data extracted
+    Replaces any None values with actual values 
+    '''
     earthquake_df = pd.DataFrame(earthquake_data)
     earthquake_df["felt"] = pd.to_numeric(
         earthquake_df["felt"], errors="coerce").fillna(0)
@@ -30,4 +34,4 @@ if __name__ == "__main__":
                   'cdi': None,
                   'longitude': -67.5815,
                   'latitude': 18.7953}]
-    print(clean_data(test_data)["felt"])
+    print(clean_data(test_data))
