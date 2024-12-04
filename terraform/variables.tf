@@ -13,9 +13,6 @@ variable "DB_HOST"{
 variable "DB_PORT"{
     type = string
 }
-variable "SCHEMA_NAME"{
-    type = string
-}
 
 variable "C14_VPC"{
     type = string

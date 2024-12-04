@@ -10,7 +10,7 @@ resource "aws_security_group" "c14-earthquake-monitor-db-sg" {
     description = "Allows access to PostgreSQL from anywhere"
     vpc_id = var.C14_VPC
 
-    ingress = {
+    ingress {
         description = "PostgreSQL"
         from_port = var.DB_PORT
         to_port = var.DB_PORT
@@ -18,7 +18,7 @@ resource "aws_security_group" "c14-earthquake-monitor-db-sg" {
         cidr_blocks = [ "0.0.0.0/0" ]
     }
 
-    egress = {
+    egress {
         from_port = 0
         to_port = 0
         protocol = "-1"
@@ -119,8 +119,7 @@ resource "aws_lambda_function" "c14-earthquake-monitor-etl-lambda-function-tf" {
       DB_NAME           = var.DB_NAME,
       DB_USER           = var.DB_USER,
       DB_PASSWORD       = var.DB_PASSWORD,
-      DB_PORT           = var.DB_PORT,
-      SCHEMA_NAME       = var.SCHEMA_NAME
+      DB_PORT           = var.DB_PORT
     }
   }
     logging_config {
