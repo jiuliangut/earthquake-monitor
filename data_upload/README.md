@@ -1,3 +1,1 @@
-## ReadMe for Data Upload SCript
-
-requirements: boto3
+## ReadMe for Data Upload Script
