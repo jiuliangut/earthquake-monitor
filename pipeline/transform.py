@@ -20,6 +20,9 @@ MIN_CDI = 0.0
 GREEN = "green"
 ZERO = 0
 
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 def is_valid_latitude(lat: float) -> bool:
     """Checks if latitude is valid"""
@@ -60,8 +63,6 @@ def clean_data(earthquake_data: list[dict]) -> list[dict]:
     - Replaces missing values in the 'alert' column with 'green' as the default value.
     - Gets rid of milliseconds in timestamp.
     '''
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s - %(levelname)s - %(message)s')
 
     if not earthquake_data or not isinstance(earthquake_data, list):
         logging.error("Expected list for earthquake_data, got %s",
