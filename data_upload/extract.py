@@ -1,3 +1,4 @@
+"""Script to extract earthquake data from RDS and upload to S3 bucket as CSV"""
 import os
 import csv
 from datetime import datetime
@@ -6,8 +7,6 @@ import boto3
 import psycopg2
 import psycopg2.extras
 from psycopg2.extensions import connection, cursor
-from typing import Any
-
 
 QUERY = """ SELECT
     e.earthquake_id,
@@ -99,15 +98,17 @@ def upload_to_s3():
         raise
 
 
-# def lambda_handler(event, context):
-#     """For AWS lambda function"""
-#     try:
-#         extract_data()
-#         upload_to_s3()
-#         return {"statusCode": 200, "body": "Data upload pipeline executed successfully"}
-#     except Exception as e:
-#         print(f"Pipeline error: {e}")
-#         return {"statusCode": 500, "body": f"Error occurred: {e}"}
+def lambda_handler(event, context):
+    """For AWS lambda function"""
+    try:
+        load_dotenv()
+        extract_data()
+        s3 = get_client()
+        s3.upload_file(CSV_FILE, os.getenv("BUCKET_NAME"), CSV_FILE)
+        return {"statusCode": 200, "body": "Data upload pipeline executed successfully"}
+    except Exception as e:
+        print(f"Execution error: {e}")
+        return {"statusCode": 500, "body": f"Error occurred: {e}"}
 
 
 if __name__ == "__main__":
