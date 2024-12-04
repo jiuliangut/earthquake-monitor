@@ -1,10 +1,10 @@
-# Earthquake ETL Pipeline
+# 🌎 Earthquake ETL Pipeline
 
 This project implements an ETL (Extract, Transform, Load) pipeline for processing earthquake data from the USGS Earthquake API, transforming the data into a standardized format, and loading it into a PostgreSQL database. The pipeline also includes automated testing for key transformations and loading functionality.
 
 ---
 
-## Directory Structure
+## 🗂️ Directory Structure
 
 ```
 earthquake_etl/
@@ -23,7 +23,7 @@ earthquake_etl/
 
 ---
 
-## Modules
+## 📄 Modules
 
 ### **1. `extract.py`**
 - **Purpose:** Fetches earthquake data from the USGS API.
@@ -65,7 +65,7 @@ earthquake_etl/
 
 ---
 
-## Testing
+## 📊 Testing
 
 ### **1. `test_extract.py`**
 - **Purpose:** Ensures data extraction is correct.
@@ -73,6 +73,7 @@ earthquake_etl/
   - Validation of extracting the correct data for the correct time.
   - Correct handling of missing fields and empty requests.
   - Verification of the correct output format.
+  - pytest coverage: _(Insert coverage here)_
 
 ### **2. `test_transform.py`**
 - **Purpose:** Ensures data transformations are correct.
@@ -80,6 +81,7 @@ earthquake_etl/
   - Validation of latitude, longitude, magnitude, and CDI values.
   - Correct handling of missing or invalid fields.
   - Verification of the cleaned output format.
+  - pytest coverage: _(Insert coverage here)_
 
 ### **3. `test_load.py`**
 - **Purpose:** Validates data insertion logic into the database.
@@ -87,10 +89,11 @@ earthquake_etl/
   - Correct mapping of foreign keys.
   - Successful batch inserts into the `earthquakes` table.
   - Handling of invalid data during database operations.
+  - pytest coverage: _(Insert coverage here)_
 
 ---
 
-## How to Use
+## 🛠️ How to Use
 
 ### **Setup**
 1. Clone the repository.
