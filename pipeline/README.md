@@ -136,5 +136,3 @@ pytest test_load.py
 
 - Each module uses Python's `logging` library to provide detailed logs.
 - Errors are handled gracefully, ensuring the pipeline can recover from failures during extraction, transformation, or loading.
-
----
