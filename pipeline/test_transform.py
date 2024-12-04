@@ -21,7 +21,8 @@ def valid_earthquake_dict():
         'type': 'earthquake',
         'cdi': None,
         'longitude': -155.28,
-        'latitude': 19.38
+        'latitude': 19.38,
+        'depth': 13.05
     }]
 
 
@@ -41,7 +42,8 @@ def invalid_earthquake_dict():
         'type': 'earthquake',
         'cdi': 111,
         'longitude': -155.28,
-        'latitude': 119.38
+        'latitude': 119.38,
+        'depth': 99999
     }]
 
 
@@ -75,6 +77,14 @@ def test_is_valid_cdi():
     assert is_valid_cdi(6.78) == True
     assert is_valid_cdi(-1) == False
     assert is_valid_cdi("Inavlid") == False
+
+
+def test_is_valid_depth():
+    """Tests for is_valid_depth"""
+    assert is_valid_depth(3) == True
+    assert is_valid_depth(69.78) == True
+    assert is_valid_depth(-1111) == False
+    assert is_valid_depth("Inavlid") == False
 
 
 def test_clean_data_valid(valid_earthquake_dict):
