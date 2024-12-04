@@ -1,7 +1,9 @@
+# pylint: disable=line-too-long
+
 '''Module that inserts the transformed data into an RDS'''
 import os
-import psycopg2
 import logging
+import psycopg2
 from pandas import Timestamp
 from psycopg2.extensions import connection, cursor
 from psycopg2.extras import RealDictCursor
@@ -56,7 +58,7 @@ def get_foreign_key(db_cursor: psycopg2.extensions.cursor, table_name: str,
             first_key = next(iter(result))
             return result[first_key]
 
-        logging.error(f"Foreign key not found for {value} in {table_name}")
+        logging.error("Foreign key not found for %s in %s", value, table_name)
         raise ValueError('Invalid Data!')
 
     except psycopg2.Error as e:
