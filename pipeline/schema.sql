@@ -41,6 +41,7 @@ CREATE TABLE earthquakes (
     cdi DECIMAL NOT NULL,
     latitude DECIMAL NOT NULL,
     longitude DECIMAL NOT NULL,
+    depth DECIMAL NOT NULL,
     detail_url VARCHAR(255) UNIQUE NOT NULL,
     alert_id SMALLINT,
     magnitude_id SMALLINT,
