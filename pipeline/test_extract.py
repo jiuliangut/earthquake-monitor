@@ -9,6 +9,7 @@ import requests
 
 @patch('extract.requests.get')
 def test_get_data_valid_response(mock_get):
+    """Test for get_data"""
     mock_response = {
         "features": [
             {
@@ -46,6 +47,7 @@ def test_get_data_valid_response(mock_get):
 
 @patch('extract.requests.get')
 def test_get_data_no_recent_data(mock_get):
+    """Test get_data when there is no data to extract"""
     mock_response = {
         "features": [
             {
@@ -78,6 +80,7 @@ def test_get_data_no_recent_data(mock_get):
 
 @patch('extract.requests.get')
 def test_get_data_missing_fields_valid(mock_get):
+    """Test get_data when keys are missing"""
     mock_response = {
         "features": [
             {
@@ -108,6 +111,7 @@ def test_get_data_missing_fields_valid(mock_get):
 
 @patch('extract.requests.get')
 def test_get_data_empty_response(mock_get):
+    """Test get_data when it returns nothing"""
     mock_response = {"features": []}
     mock_get.return_value.json.return_value = mock_response
 
@@ -119,6 +123,7 @@ def test_get_data_empty_response(mock_get):
 
 @patch('extract.requests.get')
 def test_get_data_request_exception(mock_get):
+    """Test get_data request error"""
     with pytest.raises(requests.exceptions.RequestException):
         mock_get.side_effect = requests.exceptions.RequestException(
             "Request failed")
@@ -128,6 +133,7 @@ def test_get_data_request_exception(mock_get):
 
 @patch('extract.requests.get')
 def test_get_data_empty_fields_in_data(mock_get):
+    """Test get_data when keys have no data"""
     mock_response = {
         "features": [
             {

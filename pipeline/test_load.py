@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 import pytest
 import datetime
 from unittest.mock import MagicMock, patch
@@ -21,6 +23,7 @@ def mock_cursor():
 
 @pytest.fixture
 def valid_earthquake_list():
+    """Fixture for valid dict list"""
     return [{
         'at': datetime.datetime(2024, 12, 3, 13, 42, 51),
         'event_url': 'https:example.com',
@@ -55,6 +58,7 @@ def valid_earthquake_list():
 
 @pytest.fixture
 def valid_query():
+    """Fixture for query"""
     return """INSERT INTO earthquakes (time, tsunami, felt_report_count, magnitude, 
             cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, type_id) VALUES
             (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -110,16 +114,14 @@ def test_insert_into_earthquake_empty_data(mock_connection, mock_cursor):
 @patch('psycopg2.connect')
 def test_get_connection_success(mock_connect):
     """Test get_connection with a successful connection."""
-    # Mock the connection object returned by psycopg2.connect
+
     mock_conn = MagicMock()
     mock_connect.return_value = mock_conn
 
-    # Call the function being tested
     conn = get_connection()
 
-    # Assert the function returned the mocked connection
     assert conn == mock_conn
-    # Ensure psycopg2.connect was called with correct arguments
+
     mock_connect.assert_called_once_with(
         dbname=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
