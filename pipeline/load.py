@@ -76,8 +76,8 @@ def insert_into_earthquake(db_conn: connection,
         value_list = []
 
         query = """INSERT INTO earthquakes(time, tsunami, felt_report_count, magnitude,
-                            cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, type_id) VALUES
-                            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                            cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, type_id, depth) VALUES
+                            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         for earthquake in earthquake_data:
             try:
                 alert_id = get_foreign_key(
@@ -101,7 +101,8 @@ def insert_into_earthquake(db_conn: connection,
                     alert_id,
                     magnitude_id,
                     network_id,
-                    type_id
+                    type_id,
+                    float(earthquake['depth'])
                 )
 
                 value_list.append(values)
@@ -138,55 +139,3 @@ def load_data(clean_data: list[dict]) -> None:
     conn = get_connection()
     app_cursor = get_cursor(conn)
     insert_into_earthquake(conn, app_cursor, clean_data)
-
-
-if __name__ == "__main__":
-    test_data = [
-        {
-            'at': Timestamp('2024-12-02 14:44:50'),
-            'event_url': 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/pr2024337000.geojson',
-            'felt': 0.0,
-            'location': '60 km NW of Aguadilla, Puerto Rico',
-            'magnitude': 3.75,
-            'network': 'pr',
-            'alert': 'green',
-            'magnitude_type': 'md',
-            'type': 'earthquake',
-            'tsunami': 0,
-            'cdi': 0.0,
-            'longitude': -67.5815,
-            'latitude': 18.7953
-        },
-        {
-            'at': Timestamp('2024-12-01 03:22:15'),
-            'event_url': 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/us202433689.geojson',
-            'felt': 4.0,
-            'location': '10 km NE of Ridgecrest, California',
-            'magnitude': 4.25,
-            'network': 'ci',
-            'alert': 'yellow',
-            'magnitude_type': 'ml',
-            'type': 'quarry',
-            'tsunami': 0,
-            'cdi': 3.2,
-            'longitude': -117.5245,
-            'latitude': 35.7038
-        },
-        {
-            'at': Timestamp('2024-11-30 20:05:00'),
-            'event_url': 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ak202433678.geojson',
-            'felt': 2.0,
-            'location': '50 km SW of Homer, Alaska',
-            'magnitude': 4.8,
-            'network': 'ak',
-            'alert': 'green',
-            'magnitude_type': 'mb',
-            'type': 'earthquake',
-            'tsunami': 1,
-            'cdi': 2.7,
-            'longitude': -151.7928,
-            'latitude': 59.3421
-        }
-    ]
-
-    load_data(test_data)
