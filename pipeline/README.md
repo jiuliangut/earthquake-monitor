@@ -102,6 +102,7 @@ earthquake_etl/
    pip install -r requirements.txt
    ```
 3. Configure environment variables for the database connection:
+    Store the following variables in a `.env` file in the directory:
    ```bash
    DB_NAME=your_db_name
    DB_USER=your_db_user
