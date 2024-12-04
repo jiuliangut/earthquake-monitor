@@ -118,6 +118,7 @@ INSERT INTO networks (network_name) VALUES
     ('pr'), 
     ('pt'), 
     ('se'), 
+    ('tx'),
     ('us'), 
     ('uu'), 
     ('uw');
