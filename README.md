@@ -60,6 +60,10 @@ Amazon SES ensures reliable email delivery for user reports and notifications, w
 
 ![ERD Diagram](diagrams/erd.png)
 
+1. **3NF:** Schema has been put into 3NF to improve eliminate redundancy, maintain data integrity, improve query efficiency which is particularly important as all queries from the API will be regarding the ```earthquake``` table.
+
+2. **Two Separate Table Groups:** The separate ```user``` table chain was created to fulfil the requirement to allow users to subscribe to specific regions, that have been manually created, at specific magnitude values and get notifications whenever an earthquake that matches those requirements are inserted into the database. 
+
 ---
 
 ## Quick-Start Guide
