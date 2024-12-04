@@ -37,7 +37,8 @@ def valid_earthquake_list():
         'type': 'earthquake',
         'cdi': 2,
         'longitude': -155.28,
-        'latitude': 19.38
+        'latitude': 19.38,
+        'depth': 20.1
     },
         {
         'at': datetime.datetime(2024, 12, 1, 3, 22, 15),
@@ -52,7 +53,8 @@ def valid_earthquake_list():
         'tsunami': 0,
         'cdi': 3.2,
         'longitude': -117.5245,
-        'latitude': 35.7038
+        'latitude': 35.7038,
+        'depth': 20.1
     }]
 
 
