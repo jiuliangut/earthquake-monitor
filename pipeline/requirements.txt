@@ -1,0 +1,7 @@
+requests
+pylint
+pytest
+pytest-cov
+pandas
+psycopg2-binary
+python-dotenv

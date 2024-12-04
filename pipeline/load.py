@@ -9,8 +9,6 @@ from psycopg2.extensions import connection, cursor
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 
-load_dotenv()
-
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -79,7 +77,7 @@ def insert_into_earthquake(db_conn: connection,
 
         query = """INSERT INTO earthquakes(time, tsunami, felt_report_count, magnitude,
                             cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, type_id) VALUES
-                            ( % s, % s, % s, % s, % s, % s, % s, % s, % s, % s, % s, % s)"""
+                            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         for earthquake in earthquake_data:
             try:
                 alert_id = get_foreign_key(
@@ -134,6 +132,14 @@ def insert_into_earthquake(db_conn: connection,
         raise
 
 
+def load_data(clean_data: list[dict]) -> None:
+    """Calls necessary functions to upload data to rds"""
+    load_dotenv()
+    conn = get_connection()
+    app_cursor = get_cursor(conn)
+    insert_into_earthquake(conn, app_cursor, clean_data)
+
+
 if __name__ == "__main__":
     test_data = [
         {
@@ -183,6 +189,4 @@ if __name__ == "__main__":
         }
     ]
 
-    conn = get_connection()
-    app_cursor = get_cursor(conn)
-    insert_into_earthquake(conn, app_cursor, test_data)
+    load_data(test_data)
