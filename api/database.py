@@ -9,6 +9,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+JOINED_TABLES = """SELECT  a.alert_type AS alert_level,
+                e.earthquake_id,
+                e.magnitude,
+                e.cdi,
+                e.felt_report_count,
+                e.place,
+                e.longitude,
+                e.latitude,
+                e.depth,
+                e.detail_url,
+                e.time,
+                m.magnitude_type,
+                n.network_name
+                FROM earthquakes e
+                JOIN alerts a ON e.alert_id = a.alert_id
+                JOIN magnitude_types m ON e.magnitude_id = m.magnitude_id
+                JOIN networks n ON e.network_id = n.network_id"""
+
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -49,8 +67,7 @@ def get_earthquake_by_id(earthquake_id: int) -> dict[str, Any]:
     conn = get_connection()
     app_cursor = get_cursor(conn)
 
-    app_cursor.execute(
-        f"SELECT * FROM earthquakes WHERE earthquake_id = {earthquake_id}")
+    app_cursor.execute(f"{JOINED_TABLES} WHERE earthquake_id={earthquake_id}")
     return app_cursor.fetchall()
 
 
@@ -61,7 +78,7 @@ def get_earthquakes_by_magnitude(min_magnitude: float = -1.0, max_magnitude: flo
     app_cursor = get_cursor(conn)
 
     app_cursor.execute(
-        f"SELECT * FROM earthquakes WHERE magnitude BETWEEN {min_magnitude} AND {max_magnitude}")
+        f"{JOINED_TABLES} WHERE e.magnitude BETWEEN {min_magnitude} AND {max_magnitude}")
     return app_cursor.fetchall()
 
 
@@ -71,12 +88,8 @@ def get_earthquakes_by_date(start_date: str, end_date: str, sort: str) -> list[d
     conn = get_connection()
     app_cursor = get_cursor(conn)
 
-    query = """
-        SELECT * 
-        FROM earthquakes 
-        WHERE time::date BETWEEN %s AND %s 
-        ORDER BY time {}
-    """.format(sort)
+    query = f"""{JOINED_TABLES} WHERE e.time::date BETWEEN %s AND %s 
+            ORDER BY time {sort}"""
 
     app_cursor.execute(query, (start_date, end_date))
     return app_cursor.fetchall()
@@ -87,10 +100,6 @@ def get_earthquakes_by_alert_level(color: str):
     conn = get_connection()
     app_cursor = get_cursor(conn)
 
-    app_cursor.execute(f"""
-        SELECT e.*
-        FROM earthquakes e
-        JOIN alerts a ON e.alert_id = a.alert_id
-        WHERE a.alert_type = '{color}'""")
+    app_cursor.execute(f"{JOINED_TABLES} WHERE a.alert_type = '{color}'")
 
     return app_cursor.fetchall()
