@@ -3,5 +3,9 @@ pylint
 pytest
 pytest-cov
 pandas
+psycopg2
 psycopg2-binary
 python-dotenv
+boto3
+reportlab
+
