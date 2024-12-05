@@ -176,10 +176,6 @@ def biggest_earthquake_table(earthquake_df: pd.DataFrame):
                      hide_index=True, use_container_width=True)
 
 
-def convert_df(df: pd.DataFrame):
-    return df.to_csv().encode("utf-8")
-
-
 def setup_sidebar(file) -> None:
     """Sets up the Streamlit sidebar"""
 
