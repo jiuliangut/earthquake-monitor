@@ -20,15 +20,7 @@
 - **Example**: GET `/earthquakes/magnitude?min_magnitude=4.0&max_magnitude=7.0`
 
 
-### 3. Get Earthquakes by Region
-- **Endpoint**: `GET /earthquakes/region`
-- **Description**: Get all earthquakes occurring within a specific region
-- **Query Parameters**:
-  - `region` (string, required): ID of the region (one of the 36 we have defined)
-- **Example**: GET `/earthquakes/region?region_id=3`
-
-
-### 4. Get Earthquakes by Date
+### 3. Get Earthquakes by Date
 - **Endpoint**: `GET /earthquakes/date`
 - **Description**: Get earthquakes from within a specific date range
 - **Query Parameters**:
@@ -39,7 +31,7 @@
 - **Example**:
   GET `/earthquakes/date?start_date=01-01-2001&end_date=02-02-2002&sort=descending`
 
-### 5. Get Earthquakes by Alert Level
+### 4. Get Earthquakes by Alert Level
 - **Endpoint**: `GET /earthquakes/alert`
 - **Description**: Get earthquakes fo a specific alert level
 - **Query Parameters**:
