@@ -164,6 +164,7 @@ def lambda_handler(event, context):
     try:
         load_dotenv()
         earthquakes = extract_data()
+        make_pdf(earthquakes)
         upload_to_s3()
         return {"statusCode": 200, "body": "Data upload pipeline executed successfully"}
     except Exception as e:
