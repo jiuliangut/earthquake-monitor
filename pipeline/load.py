@@ -4,7 +4,6 @@
 import os
 import logging
 import psycopg2
-from pandas import Timestamp
 from psycopg2.extensions import connection, cursor
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
