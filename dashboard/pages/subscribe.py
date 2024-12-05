@@ -36,22 +36,48 @@ def setup_page():
         st.write("")
 
     with middle:
+        contact_preference = st.radio(
+            "How would you like to be contacted?",
+            options=["Email", "Phone", "Both"]
+        )
         with st.form(key="subscribe_form", clear_on_submit=True):
             st.write("Subscription Form")
             first_name = st.text_input("First Name")
             last_name = st.text_input("Last Name")
-            email = st.text_input("Email", placeholder="example@gmail.com")
+
+            email = None
+            phone = None
+
+            if contact_preference == "Email" or contact_preference == "Both":
+                email = st.text_input("Email", placeholder="example@gmail.com")
+
+            if contact_preference == "Phone" or contact_preference == "Both":
+                phone = st.text_input(
+                    "Phone Number", placeholder="07123456789")
+
             regions = st.multiselect(
                 "Regions", options=test, placeholder="Choose a region")
-            min_magnitude = st.slider("Minimum magnitude", 0.0, 12.0, step=0.1)
+
+            option_map = {
+                0: "All Earthquakes",
+                4: "Noticeable Earthquakes (4.0+)",
+                7: "Strong Earthquakes (7.0+)"
+            }
+
+            min_magnitude = st.pills("Minimum magnitude", options=option_map.keys(
+            ), format_func=lambda option: option_map[option])
+
             subscribe_button = st.form_submit_button("Subscribe")
 
             if subscribe_button:
 
                 if not validate_name(first_name, last_name):
                     st.warning("Please provide a valid first and last name.")
-                elif not validate_email(email):
+                elif email and not validate_email(email):
                     st.warning("Please provide a valid email address.")
+                elif phone and not validate_phone_number(phone):
+                    st.warning(
+                        "Please provide a valid number, must start with 07 and be 10 or 11 digits in total.")
                 elif not regions:
                     st.warning("Please select at least one region.")
                 else:
@@ -84,6 +110,14 @@ def validate_email(email: str) -> bool:
     email_pattern = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 
     return bool(re.match(email_pattern, email))
+
+
+def validate_phone_number(phone: str) -> bool:
+    """Validates the phone number against a regEx"""
+
+    phone_pattern = r"^07\d{8,9}$"
+
+    return bool(re.match(phone_pattern, phone))
 
 
 def setup_sidebar(file) -> None:

@@ -14,7 +14,7 @@ BUCKET_NAME = "c14-earthquake-monitor-storage"
 def setup_page() -> None:
     """Sets up Streamlit page"""
     st.set_page_config(page_title="Earthquake Monitor System",
-                       page_icon="🌏", layout="wide", initial_sidebar_state="collapsed")
+                       page_icon="🌏", layout="wide", initial_sidebar_state="auto")
 
     pdf = download_pdf_from_s3()
 
@@ -36,7 +36,13 @@ def setup_page() -> None:
     conn = get_connection()
     cursor = get_cursor(conn)
 
-    date_range = get_dates()
+    left, right = st.columns(2)
+
+    with left:
+        date_range = get_dates()
+
+    with right:
+        min_magnitude = st.slider("Minimum magnitude", 0.0, 12.0, step=0.1)
 
     if date_range:
         start_date, end_date = date_range
@@ -45,6 +51,11 @@ def setup_page() -> None:
         if not filtered_data.empty:
 
             earthquake_df = validate_df(filtered_data)
+
+            st.dataframe(earthquake_df)
+
+            earthquake_df = filtered_data[filtered_data['magnitude']
+                                          > min_magnitude]
 
             earthquake_map(earthquake_df)
 
