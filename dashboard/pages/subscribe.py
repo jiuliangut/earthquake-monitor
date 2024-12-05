@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 
 
@@ -32,23 +33,27 @@ def setup_page():
             first_name = st.text_input("First Name")
             last_name = st.text_input("Last Name")
             email = st.text_input("Email", placeholder="example@gmail.com")
-            phone_number = st.text_input(
-                "Phone number", placeholder="07123456789")
             regions = st.multiselect(
                 "Regions", options=test, placeholder="Choose a region")
             min_magnitude = st.slider("Minimum magnitude", 0.0, 12.0, step=0.1)
             subscribe_button = st.form_submit_button("Subscribe")
 
             if subscribe_button:
-                st.session_state.form_data = {
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "email": email,
-                    "phone_number": phone_number,
-                    "regions": regions,
-                    "min_magnitude": min_magnitude
-                }
-                if validate_name(first_name, last_name) and validate_email(email) and validate_phone(phone_number):
+
+                if not validate_name(first_name, last_name):
+                    st.warning("Please provide a valid first and last name.")
+                elif not validate_email(email):
+                    st.warning("Please provide a valid email address.")
+                elif not regions:
+                    st.warning("Please select at least one region.")
+                else:
+                    st.session_state.form_data = {
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "email": email,
+                        "regions": regions,
+                        "min_magnitude": min_magnitude
+                    }
                     # Check if user already exists, if they do, then give them a new topic subscription
                     # If they do not exist, then add them to user table and give them the topic (Might have to mess with SNS here??)
                     st.success("Successfully subscribed!")
@@ -58,27 +63,19 @@ def setup_page():
 
 
 def validate_name(first_name: str, last_name: str) -> bool:
-    if first_name and last_name:
-        return True
+    """Validates the name against a regEx"""
 
-    st.warning("Please fill in your first and last name")
-    return False
+    name_pattern = r"^[A-Za-z][a-z]+$"
+
+    return bool(re.match(name_pattern, first_name)) and bool(re.match(name_pattern, last_name))
 
 
 def validate_email(email: str) -> bool:
-    if email:
-        return True
+    """Validates the email against a regEx"""
 
-    st.warning("Please fill in your email")
-    return False
+    email_pattern = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 
-
-def validate_phone(phone_number: str) -> bool:
-    if phone_number:
-        return True
-
-    st.warning("Please fill in your phone number")
-    return False
+    return bool(re.match(email_pattern, email))
 
 
 setup_page()

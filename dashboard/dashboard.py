@@ -3,8 +3,7 @@
 from datetime import datetime as dt
 import pandas as pd
 import streamlit as st
-import altair as alt
-import plotly as px
+import pydeck as pdk
 from db_queries import *
 
 
@@ -40,13 +39,17 @@ def setup_page() -> None:
 
         if not filtered_data.empty:
 
-            st.dataframe(filtered_data)
+            earthquake_df = validate_df(filtered_data)
 
-            earthquake_map(filtered_data)
+            csv = convert_df(earthquake_df)
 
-            recent_table(filtered_data)
+            setup_sidebar(csv)
 
-            biggest_earthquake_table(filtered_data)
+            earthquake_map(earthquake_df)
+
+            recent_table(earthquake_df)
+
+            biggest_earthquake_table(earthquake_df)
         else:
             st.warning("There is no data for this time frame")
 
@@ -65,9 +68,82 @@ def get_dates() -> dt.date:
         st.warning("Please select both a start and an end date.")
 
 
+def validate_df(earthquake_df: pd.DataFrame) -> pd.DataFrame:
+    """Converts decimal data type to float"""
+    earthquake_df['latitude'] = earthquake_df['latitude'].astype(float)
+    earthquake_df['longitude'] = earthquake_df['longitude'].astype(
+        float)
+    earthquake_df['magnitude'] = earthquake_df['magnitude'].astype(
+        float)
+    earthquake_df['depth'] = earthquake_df['depth'].astype(float)
+    earthquake_df['cdi'] = earthquake_df['cdi'].astype(float)
+
+    return earthquake_df
+
+
 def earthquake_map(earthquake_df: pd.DataFrame):
     """Displays earthquake data on a world map"""
-    ...
+    map_df = earthquake_df.copy()
+
+    map_df['time'] = map_df['time'].dt.strftime(
+        '%Y-%m-%d %H:%M:%S')
+
+    map_df['size'] = map_df['magnitude'].apply(lambda x: x * 2000)
+
+    color_map = {
+        "green": [0, 255, 0],
+        "yellow": [255, 255, 0],
+        "red": [255, 0, 0],
+    }
+
+    map_df['colour'] = map_df['alert_type'].map(
+        color_map)
+
+    point_layer = pdk.Layer(
+        "ScatterplotLayer",
+        data=map_df,
+        id="earthquake-points",
+        get_position=["longitude", "latitude"],
+        pickable=True,
+        auto_highlight=True,
+        get_radius="size",
+        radius_min_pixels=6,
+        radius_max_pixels=1000,
+        get_color="colour"
+    )
+
+    tooltip = {
+        "html": """
+        <div>
+            <span style="color: orange; font-weight: bold;">Location:</span>
+            <span style="color: white;">{place}</span><br>
+            <span style="color: orange; font-weight: bold;">Time:</span>
+            <span style="color: white;">{time}</span><br>
+            <span style="color: orange; font-weight: bold;">Magnitude:</span>
+            <span style="color: white;">{magnitude}</span><br>
+            <span style="color: orange; font-weight: bold;">Depth:</span>
+            <span style="color: white;">{depth}</span>
+        </div>
+    """,
+        "style": {
+            "backgroundColor": "black"
+        },
+    }
+
+    chart = pdk.Deck(point_layer, tooltip=tooltip)
+
+    selected_data = st.pydeck_chart(
+        chart, on_select="rerun", selection_mode="multi-object")
+
+    st.subheader("Details of Selected Earthquakes")
+
+    selected_objects = selected_data.selection.get(
+        "objects", {}).get("earthquake-points", [])
+
+    if selected_objects:
+        st.dataframe(selected_objects)
+    else:
+        st.info("No earthquakes selected.")
 
 
 def recent_table(earthquake_df: pd.DataFrame):
@@ -92,6 +168,20 @@ def biggest_earthquake_table(earthquake_df: pd.DataFrame):
         ]
         st.subheader("Biggest Earthquake of the Week")
         st.table(biggest_earthquake.to_frame().T)
+
+
+def convert_df(df: pd.DataFrame):
+    return df.to_csv().encode("utf-8")
+
+
+def setup_sidebar(csv) -> None:
+    """Sets up the Streamlit sidebar"""
+
+    st.sidebar.download_button(
+        label="Download Weekly report as PDF",
+        data=csv,
+        file_name="earthquake_weekly_report.csv",
+    )
 
 
 setup_page()

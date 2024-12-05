@@ -50,14 +50,13 @@ def get_data_from_range(start_date, end_date, cursor: cursor) -> pd.DataFrame:
     """Gets all earthquake data between 2 datetimes"""
 
     query = """
-            SELECT e.earthquake_id, e.time, e.tsunami, e.felt_report_count, e.magnitude,
-                e.cdi, e.latitude, e.longitude, e.depth, a.alert_type,m.magnitude_type, 
-                n.network_name, t.type_name
+            SELECT e.place, e.time, e.felt_report_count, e.magnitude,
+                e.cdi, ROUND(e.latitude, 2) AS latitude, ROUND(e.longitude, 2) AS longitude, e.depth, a.alert_type, m.magnitude_type, 
+                n.network_name
             FROM earthquakes AS e
             JOIN alerts AS a ON e.alert_id = a.alert_id
             JOIN magnitude AS m ON e.magnitude_id = m.magnitude_id
             JOIN networks AS n ON e.network_id = n.network_id
-            JOIN type AS t ON e.type_id = t.type_id
             WHERE e.time BETWEEN %s AND %s::timestamp + interval '23:59:59';
             """
 
