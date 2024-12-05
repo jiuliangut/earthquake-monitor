@@ -1,5 +1,9 @@
 import re
+from datetime import datetime, timedelta
 import streamlit as st
+import boto3
+
+BUCKET_NAME = "c14-earthquake-monitor-storage"
 
 
 def setup_page():
@@ -8,6 +12,10 @@ def setup_page():
                        page_icon="🌏", layout="wide", initial_sidebar_state="collapsed")
 
     emoji_left, title, emoji_right = st.columns((1, 2, 1))
+
+    pdf = download_pdf_from_s3()
+
+    setup_sidebar(pdf)
 
     test = [1, 2, 3, 4, 5]
 
@@ -76,6 +84,42 @@ def validate_email(email: str) -> bool:
     email_pattern = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
 
     return bool(re.match(email_pattern, email))
+
+
+def setup_sidebar(file) -> None:
+    """Sets up the Streamlit sidebar"""
+
+    st.sidebar.download_button(
+        label="Download Weekly report as PDF",
+        data=file,
+        file_name="earthquake_weekly_report.pdf",
+        mime="application/pdf"
+    )
+
+
+def get_this_weeks_monday() -> str:
+    """Calculates the date for this week's Monday."""
+    today = datetime.today()
+    days_to_subtract = today.weekday()
+    monday = today - timedelta(days=days_to_subtract)
+    return monday.strftime("%Y-%m-%d")
+
+
+@st.cache_data(ttl=60*60*24*7)
+def download_pdf_from_s3():
+    """Fetches a PDF file from S3 and returns the file as bytes."""
+    try:
+        s3 = boto3.client('s3')
+
+        monday_date = get_this_weeks_monday()
+        file_name = f"{monday_date}-data.pdf"
+
+        response = s3.get_object(Bucket=BUCKET_NAME, Key=file_name)
+        pdf_file = response['Body'].read()
+        return pdf_file
+    except Exception as e:
+        st.error(f"Error retrieving the file from S3: {e}")
+        return None
 
 
 setup_page()

@@ -1,19 +1,24 @@
 """Streamlit Dashboard for earthquake monitor system"""
 
-from datetime import datetime as dt
+from datetime import datetime, timedelta
 import pandas as pd
 import streamlit as st
 import pydeck as pdk
 from db_queries import *
+import boto3
 
 
-COLOUR_PALETTE = []
+BUCKET_NAME = "c14-earthquake-monitor-storage"
 
 
 def setup_page() -> None:
     """Sets up Streamlit page"""
     st.set_page_config(page_title="Earthquake Monitor System",
                        page_icon="🌏", layout="wide", initial_sidebar_state="collapsed")
+
+    pdf = download_pdf_from_s3()
+
+    setup_sidebar(pdf)
 
     emoji_left, title, emoji_right = st.columns((1, 1.5, 1))
 
@@ -41,10 +46,6 @@ def setup_page() -> None:
 
             earthquake_df = validate_df(filtered_data)
 
-            csv = convert_df(earthquake_df)
-
-            setup_sidebar(csv)
-
             earthquake_map(earthquake_df)
 
             recent_table(earthquake_df)
@@ -54,10 +55,10 @@ def setup_page() -> None:
             st.warning("There is no data for this time frame")
 
 
-def get_dates() -> dt.date:
+def get_dates() -> datetime.date:
     """Filters teh dataframe by date"""
     selected_date_range = st.date_input(
-        "Select Date Range", value=(dt(2024, 12, 1), dt.today()))
+        "Select Date Range", value=(datetime(2024, 12, 1), datetime.today()))
 
     if isinstance(selected_date_range, tuple) and len(selected_date_range) == 2:
         start_date, end_date = selected_date_range
@@ -141,7 +142,11 @@ def earthquake_map(earthquake_df: pd.DataFrame):
         "objects", {}).get("earthquake-points", [])
 
     if selected_objects:
-        st.dataframe(selected_objects)
+        selected_df = pd.DataFrame(selected_objects)
+
+        selected_df = selected_df.drop(columns=['size', 'colour'])
+
+        st.dataframe(selected_df, hide_index=True)
     else:
         st.info("No earthquakes selected.")
 
@@ -150,7 +155,7 @@ def recent_table(earthquake_df: pd.DataFrame):
     """Gets the 5 most recent earthquakes"""
     recent_df = earthquake_df.sort_values(by="time", ascending=False).head(5)
     st.subheader("5 Most Recent Earthquakes")
-    st.dataframe(recent_df)
+    st.dataframe(recent_df, hide_index=True, use_container_width=True)
 
 
 def biggest_earthquake_table(earthquake_df: pd.DataFrame):
@@ -167,24 +172,48 @@ def biggest_earthquake_table(earthquake_df: pd.DataFrame):
             last_week_earthquakes["magnitude"].idxmax()
         ]
         st.subheader("Biggest Earthquake of the Week")
-        st.table(biggest_earthquake.to_frame().T)
+        st.dataframe(biggest_earthquake.to_frame().T,
+                     hide_index=True, use_container_width=True)
 
 
 def convert_df(df: pd.DataFrame):
     return df.to_csv().encode("utf-8")
 
 
-def setup_sidebar(csv) -> None:
+def setup_sidebar(file) -> None:
     """Sets up the Streamlit sidebar"""
 
     st.sidebar.download_button(
         label="Download Weekly report as PDF",
-        data=csv,
-        file_name="earthquake_weekly_report.csv",
+        data=file,
+        file_name="earthquake_weekly_report.pdf",
+        mime="application/pdf"
     )
 
 
+def get_this_weeks_monday() -> str:
+    """Calculates the date for this week's Monday."""
+    today = datetime.today()
+    days_to_subtract = today.weekday()
+    monday = today - timedelta(days=days_to_subtract)
+    return monday.strftime("%Y-%m-%d")
+
+
+@st.cache_data(ttl=60*60*24*7)
+def download_pdf_from_s3():
+    """Fetches a PDF file from S3 and returns the file as bytes."""
+    try:
+        s3 = boto3.client('s3')
+
+        monday_date = get_this_weeks_monday()
+        file_name = f"{monday_date}-data.pdf"
+
+        response = s3.get_object(Bucket=BUCKET_NAME, Key=file_name)
+        pdf_file = response['Body'].read()
+        return pdf_file
+    except Exception as e:
+        st.error(f"Error retrieving the file from S3: {e}")
+        return None
+
+
 setup_page()
-
-
-# Add location
