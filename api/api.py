@@ -42,6 +42,9 @@ def endpoint_get_magnitude():
     if not max_magnitude:
         max_magnitude = 10.0
 
+    if min_magnitude >= max_magnitude:
+        jsonify({"error": "min_magnitude must be less than max_magnitude"}), 400
+
     earthquakes = get_earthquakes_by_magnitude(min_magnitude, max_magnitude)
 
     if not earthquakes:
