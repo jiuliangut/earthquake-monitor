@@ -35,3 +35,7 @@ def lambda_handler(event, context):
             "status code": 500,
             "body": f"An unexpected error occurred {e}"
         }
+
+
+if __name__ == "__main__":
+    lambda_handler(None, None)

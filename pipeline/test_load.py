@@ -37,7 +37,8 @@ def valid_earthquake_list():
         'type': 'earthquake',
         'cdi': 2,
         'longitude': -155.28,
-        'latitude': 19.38
+        'latitude': 19.38,
+        'depth': 20.1
     },
         {
         'at': datetime.datetime(2024, 12, 1, 3, 22, 15),
@@ -52,7 +53,8 @@ def valid_earthquake_list():
         'tsunami': 0,
         'cdi': 3.2,
         'longitude': -117.5245,
-        'latitude': 35.7038
+        'latitude': 35.7038,
+        'depth': 20.1
     }]
 
 
@@ -93,13 +95,11 @@ def test_insert_into_earthquake_valid(mock_connection, mock_cursor, valid_earthq
         {"id": 4},
         {"id": 5},
         {"id": 6},
-        {"id": 7},
-        {"id": 8}
     ]
 
     insert_into_earthquake(mock_connection, mock_cursor, valid_earthquake_list)
 
-    assert mock_cursor.fetchone.call_count == 8
+    assert mock_cursor.fetchone.call_count == 6
 
     mock_connection.commit.assert_called_once()
 

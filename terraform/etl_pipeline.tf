@@ -44,6 +44,8 @@ resource "aws_db_instance" "c14-earthquake-monitor-db" {
 
     vpc_security_group_ids = [ aws_security_group.c14-earthquake-monitor-db-sg.id ]
 
+    availability_zone = "eu-west-2a"
+
     tags = {
       "Name" = "c14-earthquake-monitor-db"
     }

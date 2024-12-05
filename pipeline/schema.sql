@@ -2,9 +2,8 @@ DROP TABLE IF EXISTS earthquakes;
 DROP TABLE IF EXISTS user_topic_assignment;
 DROP TABLE IF EXISTS topics;
 DROP TABLE IF EXISTS alerts;
-DROP TABLE IF EXISTS magnitude;
+DROP TABLE IF EXISTS magnitude_types;
 DROP TABLE IF EXISTS networks;
-DROP TABLE IF EXISTS type;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS regions;
 
@@ -14,7 +13,7 @@ CREATE TABLE alerts (
     PRIMARY KEY (alert_id)
 );
 
-CREATE TABLE magnitude (
+CREATE TABLE magnitude_types (
     magnitude_id SMALLINT GENERATED ALWAYS AS IDENTITY,
     magnitude_type VARCHAR(3) UNIQUE NOT NULL,
     PRIMARY KEY (magnitude_id)
@@ -26,31 +25,25 @@ CREATE TABLE networks (
     PRIMARY KEY (network_id)
 );
 
-CREATE TABLE type (
-    type_id SMALLINT GENERATED ALWAYS AS IDENTITY,
-    type_name VARCHAR(10) UNIQUE NOT NULL,
-    PRIMARY KEY (type_id)
-);
 
 CREATE TABLE earthquakes (
     earthquake_id BIGINT GENERATED ALWAYS AS IDENTITY,
     time TIMESTAMPTZ NOT NULL,
-    tsunami BOOLEAN NOT NULL,
     felt_report_count SMALLINT NOT NULL,
     magnitude DECIMAL NOT NULL,
     cdi DECIMAL NOT NULL,
     latitude DECIMAL NOT NULL,
     longitude DECIMAL NOT NULL,
-    detail_url VARCHAR(255) UNIQUE NOT NULL,
+    depth DECIMAL NOT NULL,
+    detail_url VARCHAR(255) NOT NULL,
     alert_id SMALLINT,
     magnitude_id SMALLINT,
     network_id SMALLINT,
-    type_id SMALLINT,
+    place VARCHAR(255),
     PRIMARY KEY (earthquake_id),
     FOREIGN KEY (alert_id) REFERENCES alerts(alert_id),
-    FOREIGN KEY (magnitude_id) REFERENCES magnitude(magnitude_id),
+    FOREIGN KEY (magnitude_id) REFERENCES magnitude_types(magnitude_id),
     FOREIGN KEY (network_id) REFERENCES networks(network_id),
-    FOREIGN KEY (type_id) REFERENCES type(type_id),
     CONSTRAINT latitude_range CHECK (latitude BETWEEN -90.0 AND 90.0),
     CONSTRAINT longitude_range CHECK (longitude BETWEEN -180.0 AND 180.0)
 );
@@ -95,10 +88,10 @@ INSERT INTO alerts (alert_type) VALUES
     ('orange'), 
     ('red');
 
-INSERT INTO magnitude (magnitude_type) VALUES 
+INSERT INTO magnitude_types (magnitude_type) VALUES 
     ('md'), 
     ('ml'), 
-    ('ms'), 
+    ('ms'),  
     ('mw'), 
     ('me'), 
     ('mi'), 
@@ -118,13 +111,11 @@ INSERT INTO networks (network_name) VALUES
     ('pr'), 
     ('pt'), 
     ('se'), 
+    ('tx'),
     ('us'), 
     ('uu'), 
     ('uw');
 
-INSERT INTO type (type_name) VALUES 
-    ('earthquake'), 
-    ('quarry');
 
 INSERT INTO regions (min_latitude, max_latitude, min_longitude, max_longitude, region_name) VALUES
 (-90.0, -60.0, -180.0, -120.0, 'South Pacific Ocean'),
