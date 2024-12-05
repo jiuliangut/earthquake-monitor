@@ -13,7 +13,6 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 
-
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 QUERY = """
@@ -29,6 +28,20 @@ COLUMNS = ['place', 'time', 'magnitude', 'alert_type', 'felt_report_count',
            'network_name']
 
 PDF_FILE = f"""/tmp/{datetime.today().strftime('%Y-%m-%d')}-data.pdf"""
+
+COL_WIDTHS = [
+    170,  # place
+    80,   # time
+    65,   # magnitude
+    40,   # alert type
+    50,   # felt report count
+    40,   # cdi
+    70,   # latitude
+    70,   # longitude
+    42,   # depth
+    64,   # magtype
+    52   # network name
+]
 
 
 def get_connection() -> connection:
@@ -76,7 +89,6 @@ def extract_data() -> pd.DataFrame:
             lambda x: pd.to_datetime(x).strftime(
                 "%Y-%m-%d %H:%M") if pd.notnull(x) else x
         )
-
         return earthquakes
 
     except Exception as e:
@@ -93,7 +105,6 @@ def make_pdf(data: pd.DataFrame) -> None:
     styles = getSampleStyleSheet()
     header_styles = styles['BodyText']
     header_styles.fontName = "Helvetica-Bold"
-
     table_data = [
         [Paragraph(str(col), header_styles) for col in data.columns]
     ]
@@ -103,22 +114,7 @@ def make_pdf(data: pd.DataFrame) -> None:
         table_data.append(wrapped_row)
 
     pdf = SimpleDocTemplate(PDF_FILE, pagesize=landscape(letter))
-
-    col_widths = [
-        170,  # place
-        80,   # time
-        65,   # magnitude
-        40,   # alert type
-        50,   # felt report count
-        40,   # cdi
-        70,   # latitude
-        70,   # longitude
-        42,   # depth
-        64,   # magtype
-        52,   # network name
-    ]
-
-    table = Table(table_data, colWidths=col_widths)
+    table = Table(table_data, colWidths=COL_WIDTHS)
     style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.olive),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
