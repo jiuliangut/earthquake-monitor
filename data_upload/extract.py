@@ -58,7 +58,7 @@ COLUMN_NAME_MAP = {
 
 
 def extract_data() -> pd.DataFrame:
-    """Extracts data from the database and processes it for PDF generation."""
+    """Extracts data from the database and prepares it for PDF generation"""
     conn = None
     try:
         conn = get_connection()
