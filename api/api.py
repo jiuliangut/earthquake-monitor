@@ -52,6 +52,7 @@ def endpoint_get_magnitude():
 
 @app.route("/earthquakes/date", methods=["GET"])
 def endpoint_get_earthquakes_between_date():
+    """Returns all earthquakes between two dates."""
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
     sort = request.args.get("sort")
@@ -88,6 +89,7 @@ def endpoint_get_earthquakes_between_date():
 
 @app.route("/earthquakes/alert/<string:color>")
 def endpoint_earthquakes_by_alert_color(color: str):
+    """Returns all earthquakes with a certain alert level."""
     if not valid_color(color.lower()):
         return jsonify({"error": "Invalid alert level"}), 404
 

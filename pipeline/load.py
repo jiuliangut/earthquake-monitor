@@ -4,7 +4,6 @@
 import os
 import logging
 import psycopg2
-from pandas import Timestamp
 from psycopg2.extensions import connection, cursor
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
@@ -75,9 +74,9 @@ def insert_into_earthquake(db_conn: connection,
     try:
         value_list = []
 
-        query = """INSERT INTO earthquakes(time, tsunami, felt_report_count, magnitude,
-                            cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, type_id, depth) VALUES
-                            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        query = """INSERT INTO earthquakes(time, felt_report_count, magnitude,
+                            cdi, latitude, longitude, detail_url, alert_id, magnitude_id, network_id, depth, place) VALUES
+                            (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         for earthquake in earthquake_data:
             try:
                 alert_id = get_foreign_key(
@@ -86,12 +85,9 @@ def insert_into_earthquake(db_conn: connection,
                     db_cursor, 'magnitude', 'magnitude_type', earthquake['magnitude_type'])
                 network_id = get_foreign_key(
                     db_cursor, 'networks', 'network_name', earthquake['network'])
-                type_id = get_foreign_key(
-                    db_cursor, 'type', 'type_name', earthquake['type'])
 
                 values = (
                     earthquake['at'],
-                    bool(earthquake['tsunami']),
                     int(earthquake['felt']),
                     float(earthquake['magnitude']),
                     float(earthquake['cdi']),
@@ -101,8 +97,8 @@ def insert_into_earthquake(db_conn: connection,
                     alert_id,
                     magnitude_id,
                     network_id,
-                    type_id,
-                    float(earthquake['depth'])
+                    float(earthquake['depth']),
+                    earthquake['location']
                 )
 
                 value_list.append(values)
