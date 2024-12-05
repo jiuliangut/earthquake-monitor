@@ -4,7 +4,7 @@
 Module that transforms the extracted data into the necessary format. 
 Ready to be loaded into the database
 '''
-import datetime
+
 import logging
 import pandas as pd
 
