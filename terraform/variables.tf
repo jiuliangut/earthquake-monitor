@@ -60,3 +60,10 @@ variable "ACCOUNT_ID" {
 variable "RDS_RESOURCE_ID" {
     type = string
 }
+
+variable "SSH_ALLOWED_IP" {
+  description = "IP address allowed to SSH into the EC2 instance"
+  type        = string
+  default     = "0.0.0.0/0"  # Optional: default value can be overwritten in tfvars
+}
+
