@@ -1,30 +1,34 @@
 """Script to extract earthquake data from RDS and upload to S3 bucket as CSV"""
 import os
-import csv
+import logging
 from datetime import datetime
 from dotenv import load_dotenv
 import boto3
 import psycopg2
 import psycopg2.extras
+from psycopg2.extensions import connection
 import pandas as pd
-from psycopg2.extensions import connection, cursor
-
-QUERY = """ 
-SELECT *
-FROM earthquakes AS e
-JOIN alerts AS a ON e.alert_id = a.alert_id
-JOIN networks AS n ON e.network_id = n.network_id
-JOIN magnitude AS m ON e.magnitude_id = m.magnitude_id
-JOIN type AS t ON e.type_id = t.type_id;
-"""
-
-COLUMNS = [
-    'earthquake_id', 'time', 'magnitude', 'tsunami', 'felt_report_count', 'cdi',
-    'latitude', 'longitude', 'depth', 'detail_url', 'alert_type', 'magnitude_type',
-    'network_name', 'type_name']
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 
 
-CSV_FILE = f"/tmp/{datetime.today().strftime('%Y-%m-%d')}_data.csv"
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+QUERY = """
+        SELECT *
+        FROM earthquakes AS e
+        JOIN alerts AS a ON e.alert_id = a.alert_id
+        JOIN networks AS n ON e.network_id = n.network_id
+        JOIN magnitude AS m ON e.magnitude_id = m.magnitude_id;
+        """
+
+COLUMNS = ['place', 'time', 'magnitude', 'alert_type', 'felt_report_count',
+           'cdi', 'latitude', 'longitude', 'depth', 'magnitude_type',
+           'network_name']
+
+PDF_FILE = f"""/tmp/{datetime.today().strftime('%Y-%m-%d')}-data.pdf"""
 
 
 def get_connection() -> connection:
@@ -38,22 +42,97 @@ def get_connection() -> connection:
     )
 
 
-def extract_data() -> None:
-    """Extracts data from database and writes to a CSV file"""
+COLUMN_NAME_MAP = {
+    'time': 'Time',
+    'place': 'Place',
+    'magnitude': 'Magnitude',
+    'felt_report_count': 'Felt Report Count',
+    'cdi': 'CDI',
+    'latitude': 'Latitude',
+    'longitude': 'Longitude',
+    'depth': 'Depth',
+    'alert_type': 'Alert Type',
+    'magnitude_type': 'Magnitude Type',
+    'network_name': 'Network Name',
+}
+
+
+def extract_data() -> pd.DataFrame:
+    """Extracts data from the database and processes it for PDF generation."""
     conn = None
     try:
         conn = get_connection()
-        print("Executing query...")
+        logging.info("Executing query...")
         earthquakes = pd.read_sql(QUERY, conn)
         earthquakes = earthquakes[COLUMNS]
-        earthquakes.to_csv(CSV_FILE, index=False, encoding="utf-8")
-        print(f"Data successfully written to {CSV_FILE}")
+        earthquakes = earthquakes.rename(columns=COLUMN_NAME_MAP)
+        earthquakes['Depth'] = earthquakes['Depth'].apply(
+            lambda x: f"{x:.2f}" if pd.notnull(x) else x)
+        earthquakes['Latitude'] = earthquakes['Latitude'].apply(
+            lambda x: f"{x:.6f}" if pd.notnull(x) else x)
+        earthquakes['Longitude'] = earthquakes['Longitude'].apply(
+            lambda x: f"{x:65f}" if pd.notnull(x) else x)
+        earthquakes["Time"] = earthquakes["Time"].apply(
+            lambda x: pd.to_datetime(x).strftime(
+                "%Y-%m-%d %H:%M") if pd.notnull(x) else x
+        )
+
+        return earthquakes
+
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error("Error during data extraction: %s", e)
         raise
     finally:
         if conn:
             conn.close()
+
+
+def make_pdf(data: pd.DataFrame) -> None:
+    """Generates a PDF from the provided dataframe"""
+    logging.info("Writing data to PDF: %s", PDF_FILE)
+    styles = getSampleStyleSheet()
+    header_styles = styles['BodyText']
+    header_styles.fontName = "Helvetica-Bold"
+
+    table_data = [
+        [Paragraph(str(col), header_styles) for col in data.columns]
+    ]
+    for row in data.values.tolist():
+        wrapped_row = [Paragraph(str(cell), styles["BodyText"])
+                       for cell in row]
+        table_data.append(wrapped_row)
+
+    pdf = SimpleDocTemplate(PDF_FILE, pagesize=landscape(letter))
+
+    col_widths = [
+        170,  # place
+        80,   # time
+        65,   # magnitude
+        40,   # alert type
+        50,   # felt report count
+        40,   # cdi
+        70,   # latitude
+        70,   # longitude
+        42,   # depth
+        64,   # magtype
+        52,   # network name
+    ]
+
+    table = Table(table_data, colWidths=col_widths)
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.olive),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ])
+
+    table.setStyle(style)
+    pdf.build([table])
+    logging.info("Data successfully written to %s", PDF_FILE)
 
 
 def get_client():
@@ -61,22 +140,22 @@ def get_client():
     return boto3.client(
         's3',
         aws_access_key_id=os.getenv("ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("SECRET_ACCESS_KEY")
-    )
+        aws_secret_access_key=os.getenv("SECRET_ACCESS_KEY"))
 
 
 def upload_to_s3():
-    """Uploads CSV file to S3 bucket and clears temp file"""
+    """Uploads pdf file to S3 bucket and clears temp file"""
     s3_client = get_client()
     bucket_name = os.getenv("BUCKET_NAME")
-    s3_key = os.path.basename(CSV_FILE)
+    s3_key = f"""{datetime.today().strftime('%Y-%m-%d')}-data.pdf"""
     try:
-        print(f"Uploading {CSV_FILE} to bucket...")
-        s3_client.upload_file(CSV_FILE, bucket_name, s3_key)
-        os.remove(CSV_FILE)
-        print("Upload successful.")
+        logging.info("Uploading to bucket")
+        s3_client.upload_file(
+            Filename=PDF_FILE, Bucket=bucket_name, Key=s3_key)
+        os.remove(PDF_FILE)
+        logging.info("Upload successful")
     except Exception as e:
-        print(f"Failed to upload file to S3: {e}")
+        logging.info("Failed to upload file to S3: %s", e)
         raise
 
 
@@ -84,20 +163,19 @@ def lambda_handler(event, context):
     """For AWS lambda function"""
     try:
         load_dotenv()
-        extract_data()
-        s3 = get_client()
-        s3.upload_file(CSV_FILE, os.getenv("BUCKET_NAME"), CSV_FILE)
+        earthquakes = extract_data()
+        upload_to_s3()
         return {"statusCode": 200, "body": "Data upload pipeline executed successfully"}
     except Exception as e:
-        print(f"Execution error: {e}")
+        logging.info("Execution error: %s", e)
         return {"statusCode": 500, "body": f"Error occurred: {e}"}
 
 
 if __name__ == "__main__":
     try:
         load_dotenv()
-        extract_data()
-        s3 = get_client()
-        s3.upload_file(CSV_FILE, os.getenv("BUCKET_NAME"), CSV_FILE)
+        earthquakes = extract_data()
+        make_pdf(earthquakes)
+        upload_to_s3()
     except Exception as e:
-        print(f"Execution error: {e}")
+        logging.info("Execution error: %s", e)
