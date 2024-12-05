@@ -1,4 +1,4 @@
-"""API for the earthquake monitor."""
+'''API for the earthquake monitor.'''
 from datetime import datetime
 from flask import Flask, jsonify, request
 from database import (get_earthquake_by_id,
