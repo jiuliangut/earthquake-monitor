@@ -84,7 +84,7 @@ def extract_data() -> pd.DataFrame:
         earthquakes['Latitude'] = earthquakes['Latitude'].apply(
             lambda x: f"{x:.6f}" if pd.notnull(x) else x)
         earthquakes['Longitude'] = earthquakes['Longitude'].apply(
-            lambda x: f"{x:65f}" if pd.notnull(x) else x)
+            lambda x: f"{x:.6f}" if pd.notnull(x) else x)
         earthquakes["Time"] = earthquakes["Time"].apply(
             lambda x: pd.to_datetime(x).strftime(
                 "%Y-%m-%d %H:%M") if pd.notnull(x) else x
