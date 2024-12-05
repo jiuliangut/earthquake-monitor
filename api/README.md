@@ -1,13 +1,23 @@
 # Earthquake Monitor API
-## API to allow technical users to query the database and extract information in real-time
-### Below are the endpoints that users can use to navigate interact with the API which queries the database.
+A RESTful API to allow technical users to query the database and extract information in real-time
+
+
+## Features
+
+- Retrieves detailed information about specific earthquakes.
+- Query earthquakes based on magnitude ranges.
+- Get earthquakes within specific date ranges with sorting options.
+- Filter earthquakes by alert levels (e.g., green, yellow, orange, red).
+
+
+## API endpoints:
 
 ### 1. Get Earthquake Details by ID
 - **Endpoint**: `GET /earthquake/{id}`
 - **Description**: Get information about a specific earthquake using ID
 - **Path Parameters**:
-  - `id` (string, required): ID of the earthquake
-- **Example**: GET `/earthquake/783`
+  - `id` (string, required): ID of the earthquake (**begins at 1**)
+- **Example**: GET `/earthquake/1`
 
 
 ### 2. Get Earthquakes by Magnitude
@@ -24,18 +34,18 @@
 - **Endpoint**: `GET /earthquakes/date`
 - **Description**: Get earthquakes from within a specific date range
 - **Query Parameters**:
-  - `start_date` (string, required): Start date (DD-MM-YYYY)
-  - `end_date` (string, required): End date (DD-MM-YYYY)
+  - `start_date` (string, required): Start date (YYYY-MM-DD)
+  - `end_date` (string, required): End date (YYYY-MM-DD)
   - `sort` (string, optional): Sort order for results:
     - `ascending`, `descending`; default is `ascending`
 - **Example**:
   GET `/earthquakes/date?start_date=01-01-2001&end_date=02-02-2002&sort=descending`
 
 ### 4. Get Earthquakes by Alert Level
-- **Endpoint**: `GET /earthquakes/alert`
+- **Endpoint**: `GET /earthquakes/color`
 - **Description**: Get earthquakes fo a specific alert level
 - **Query Parameters**:
-  - `alert_level` (string, optional). Filter earthquakes by alert level: 
+  - `color` (string, required). Filter earthquakes by alert level: 
     - `green`, `yellow`, `orange`, `red`
 - **Example**:
-  GET `/earthquakes/alerts?alert_level=red`
+  GET `/earthquakes/alert/green`
