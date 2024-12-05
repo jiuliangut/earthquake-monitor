@@ -48,11 +48,11 @@ resource "aws_iam_role_policy" "c14_lambda_execution_policy" {
 }
 
 # Lambda Function using Docker Image
-resource "aws_lambda_function" "c14_lambda_function" {
-  function_name    = "c14-earthquake-monitor-etl-lambda"
+resource "aws_lambda_function" "c14-earthquake-report-lambda" {
+  function_name    = "c14-earthquake-report-lambda"
   role             = aws_iam_role.c14_lambda_execution_role.arn
   package_type     = "Image"
-  image_uri        = "${var.ETL_ECR_URI}:latest"
+  image_uri        = "${var.ETL_ECR_URI}:latest" #placeholder until we get the actual image uri
   timeout          = 900 # 15 minutes
   environment {
     variables = {
@@ -99,15 +99,15 @@ resource "aws_iam_role_policy" "c14_scheduler_execution_policy" {
       {
         Action   = "lambda:InvokeFunction"
         Effect   = "Allow"
-        Resource = aws_lambda_function.c14_lambda_function.arn
+        Resource = aws_lambda_function.c14-earthquake-report-lambda.arn # 
       }
     ]
   })
 }
 
 # EventBridge Schedule
-resource "aws_scheduler_schedule" "c14_scheduler_schedule" {
-  name                         = "c14-earthquake-monitor-etl-schedule"
+resource "aws_scheduler_schedule" "c14-earthquake-report-schedule" {
+  name                         = "c14-earthquake-report-schedule"
   schedule_expression          = "cron(1 0 ? * MON *)"
   schedule_expression_timezone = "Europe/London"
 
@@ -116,7 +116,7 @@ resource "aws_scheduler_schedule" "c14_scheduler_schedule" {
   }
 
   target {
-    arn      = aws_lambda_function.c14_lambda_function.arn
+    arn      = aws_lambda_function.c14-earthquake-report-lambda.arn #
     role_arn = aws_iam_role.c14_scheduler_execution_role.arn
   }
 }
