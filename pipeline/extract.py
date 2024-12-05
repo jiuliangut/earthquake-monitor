@@ -54,7 +54,8 @@ def get_data() -> list[dict]:
                         "type": earthquake_data["properties"].get("type"),
                         "cdi": earthquake_data["properties"]['cdi'],
                         "longitude": earthquake_data["geometry"]['coordinates'][0],
-                        "latitude": earthquake_data["geometry"]['coordinates'][1]
+                        "latitude": earthquake_data["geometry"]['coordinates'][1],
+                        "depth": earthquake_data["geometry"]['coordinates'][-1]
                     })
             except KeyError as e:
                 logging.error(
@@ -70,11 +71,3 @@ def get_data() -> list[dict]:
 
     logging.info("Retrieved %s earthquake records.", len(data))
     return data
-
-
-if __name__ == "__main__":
-    data_ = get_data()
-    if data_:
-        logging.info("Data retrieved: %s...", data_[:2])
-    else:
-        logging.warning("No data retrieved.")
