@@ -95,13 +95,11 @@ def test_insert_into_earthquake_valid(mock_connection, mock_cursor, valid_earthq
         {"id": 4},
         {"id": 5},
         {"id": 6},
-        {"id": 7},
-        {"id": 8}
     ]
 
     insert_into_earthquake(mock_connection, mock_cursor, valid_earthquake_list)
 
-    assert mock_cursor.fetchone.call_count == 8
+    assert mock_cursor.fetchone.call_count == 6
 
     mock_connection.commit.assert_called_once()
 
