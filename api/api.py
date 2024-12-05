@@ -63,7 +63,7 @@ def endpoint_get_earthquakes_between_date():
         start_date = datetime.strptime(
             start_date, '%Y-%m-%d').strftime('%Y-%m-%d')
     except ValueError:
-        return jsonify({"error": "Invalid start_date format. Please use MM/DD/YYYY"}), 400
+        return jsonify({"error": "Invalid start_date format. Please use YYYY-MM-DD"}), 400
 
     if not end_date:
         return jsonify({"error": "end_date must be given"}), 404
@@ -72,7 +72,7 @@ def endpoint_get_earthquakes_between_date():
         end_date = datetime.strptime(
             end_date, '%Y-%m-%d').strftime('%Y-%m-%d')
     except ValueError:
-        return jsonify({"error": "Invalid end_date format. Please use MM/DD/YYYY"}), 400
+        return jsonify({"error": "Invalid end_date format. Please use YYYY-MM-DD"}), 400
 
     if sort:
         sort = "DESC"
