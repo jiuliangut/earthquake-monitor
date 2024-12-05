@@ -4,7 +4,7 @@
 Module that transforms the extracted data into the necessary format. 
 Ready to be loaded into the database
 '''
-import datetime
+
 import logging
 import pandas as pd
 
@@ -16,6 +16,8 @@ MAX_LAT = 90.0
 MIN_LAT = -90.0
 MAX_CDI = 12.0
 MIN_CDI = 0.0
+MAX_DEPTH = 1000
+MIN_DEPTH = -100
 
 GREEN = "green"
 ZERO = 0
@@ -54,6 +56,14 @@ def is_valid_cdi(cdi: float) -> bool:
         logging.error("Invalid CDI type: %s", type(cdi))
         return False
     return MIN_CDI <= cdi <= MAX_CDI
+
+
+def is_valid_depth(depth: float) -> bool:
+    """Checks if depth is valid"""
+    if not isinstance(depth, (float, int)):
+        logging.error("Invalid latitude type: %s", type(depth))
+        return False
+    return MIN_DEPTH <= depth <= MAX_DEPTH
 
 
 def clean_data(earthquake_data: list[dict]) -> list[dict]:
@@ -99,11 +109,13 @@ def validate_data(earthquake_df: pd.DataFrame) -> pd.DataFrame:
     earthquake_df["magnitude_valid"] = earthquake_df["magnitude"].apply(
         is_valid_magnitude)
     earthquake_df["cdi_valid"] = earthquake_df["cdi"].apply(is_valid_cdi)
+    earthquake_df["depth_valid"] = earthquake_df["depth"].apply(is_valid_depth)
 
     valid_earthquake_df = earthquake_df[earthquake_df["latitude_valid"] &
                                         earthquake_df["longitude_valid"] &
                                         earthquake_df["magnitude_valid"] &
-                                        earthquake_df["cdi_valid"]]
+                                        earthquake_df["cdi_valid"] &
+                                        earthquake_df["depth_valid"]]
 
     invalid_count = len(earthquake_df) - len(valid_earthquake_df)
     if invalid_count > 0:
@@ -111,26 +123,9 @@ def validate_data(earthquake_df: pd.DataFrame) -> pd.DataFrame:
             "Removed %s invalid earthquake records.", invalid_count)
 
     columns_to_exclude = ["latitude_valid",
-                          "longitude_valid", "magnitude_valid", "cdi_valid"]
+                          "longitude_valid", "magnitude_valid", "cdi_valid", "depth_valid"]
 
     valid_earthquake_df = valid_earthquake_df.drop(columns=columns_to_exclude)
 
     logging.info("Data validation complete.")
     return valid_earthquake_df
-
-
-if __name__ == "__main__":
-    test_data = [{'at': datetime.datetime(2024, 12, 2, 14, 44, 50, 830000),
-                  'event_url': 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/pr2024337000.geojson',
-                  'felt': None,
-                  'location': '60 km NW of Aguadilla, Puerto Rico',
-                  'magnitude': 3.75,
-                  'network': 'pr',
-                  'alert': None,
-                  'magnitude_type': 'md',
-                  'type': 'earthquake',
-                  'tsunami': 0,
-                  'cdi': None,
-                  'longitude': -67.5815,
-                  'latitude': 18.7953}]
-    print(clean_data(test_data))

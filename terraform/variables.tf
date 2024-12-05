@@ -14,6 +14,10 @@ variable "DB_PORT"{
     type = string
 }
 
+variable "S3_BUCKET" {
+    type = string
+}
+
 variable "C14_VPC"{
     type = string
 }
@@ -46,5 +50,13 @@ variable "DATA_UPLOAD_ECR_URI" {
 }
 
 variable "DASHBOARD_ECR_URI" {
+    type = string
+}
+
+variable "ACCOUNT_ID" {
+    type = string
+}
+
+variable "RDS_RESOURCE_ID" {
     type = string
 }
