@@ -50,8 +50,8 @@ CREATE TABLE earthquakes (
 
 CREATE TABLE users (
     user_id BIGINT GENERATED ALWAYS AS IDENTITY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    phone VARCHAR(15) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    phone VARCHAR(15) UNIQUE,
     PRIMARY KEY (user_id)
 );
 
