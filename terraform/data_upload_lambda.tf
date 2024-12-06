@@ -56,16 +56,12 @@ resource "aws_lambda_function" "c14-earthquake-report-lambda" {
   timeout       = 900
   environment {
     variables = {
-      ACCESS_KEY_ID     = var.AWS_ACCESS_KEY
-      SECRET_ACCESS_KEY = var.AWS_SECRET_KEY
-      ACCOUNT_ID        = var.ACCOUNT_ID
-      RDS_RESOURCE_ID   = var.RDS_RESOURCE_ID
       DB_HOST           = var.DB_HOST
       DB_NAME           = var.DB_NAME
       DB_USER           = var.DB_USER
       DB_PASSWORD       = var.DB_PASSWORD
       DB_PORT           = var.DB_PORT
-      S3_BUCKET         = var.S3_BUCKET
+      BUCKET_NAME       = var.S3_BUCKET
     }
   }
 }
