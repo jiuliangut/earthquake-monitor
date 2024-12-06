@@ -7,6 +7,16 @@ The Earthquake Monitor Dashboard enables users to explore and interact with eart
 
 ---
 
+## 🖼️ Wireframe
+
+![Wireframe](../diagrams/Earthquake-dashboard-wireframe.png)
+
+1. **World Map** that will have red dots signifying earthquakes, the larger the dot the greater the magnitude of the earthquake.
+
+2. **Date filtering** so that users can see earthquakes that have happened within a specific time frame.
+
+3. Tables that will show the **5 most recent earthquakes** and another that will show the **largest earthquake of the week**.
+
 ## 🛠️ Features
 ### 1️⃣ Dashboard
 - View earthquake data from selected date ranges.

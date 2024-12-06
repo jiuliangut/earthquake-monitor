@@ -65,16 +65,6 @@ Amazon SES ensures reliable email delivery for user reports and notifications, w
 
 2. **Two Separate Table Groups:** The separate ```user``` table chain was created to fulfil the requirement to allow users to subscribe to specific regions, that have been manually created, at specific magnitude values and get notifications whenever an earthquake that matches those requirements are inserted into the database.
 
-## 🖼️ Wireframe
-
-![Wireframe](diagrams/Earthquake-dashboard-wireframe.png)
-
-1. **World Map** that will have red dots signifying earthquakes, the larger the dot the greater the magnitude of the earthquake.
-
-2. **Date filtering** so that users can see earthquakes that have happened within a specific time frame.
-
-3. Tables that will show the **5 most recent earthquakes** and another that will show the **largest earthquake of the week**.
-
 ---
 
 ## 🚀 Quick-Start Guide
