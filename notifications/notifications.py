@@ -1,3 +1,4 @@
+'''Module that handles the data checking and sends notifications to the correct subscriptions'''
 import os
 import logging
 from dotenv import load_dotenv
