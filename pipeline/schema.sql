@@ -67,16 +67,17 @@ CREATE TABLE regions (
 
 CREATE TABLE topics (
     topic_id SMALLINT GENERATED ALWAYS AS IDENTITY,
-    min_magnitude_value SMALLINT NOT NULL,
-    region_id SMALLINT,
-    PRIMARY KEY (topic_id),
-    FOREIGN KEY (region_id) REFERENCES regions(region_id)
+    topic_arn VARCHAR(255) UNIQUE NOT NULL,
+    topic_name VARCHAR(50) UNIQUE NOT NULL,
+    PRIMARY KEY (topic_id)
 );
 
 CREATE TABLE user_topic_assignment (
     assignment_id BIGINT GENERATED ALWAYS AS IDENTITY,
     user_id BIGINT,
     topic_id SMALLINT,
+    sns_subscription_arn VARCHAR(150),
+    email_subscription_arn VARCHAR(150),
     PRIMARY KEY (assignment_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (topic_id) REFERENCES topics(topic_id)
