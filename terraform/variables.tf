@@ -67,3 +67,7 @@ variable "SSH_ALLOWED_IP" {
   default     = "0.0.0.0/0"  # Optional: default value can be overwritten in tfvars
 }
 
+variable "NOTIFICATION_ECR_URI" {
+  description = "Notification script image ECR URI"
+  type = string
+}
