@@ -43,18 +43,6 @@ COL_WIDTHS = [
     52   # network name
 ]
 
-
-def get_connection() -> connection:
-    """Gets connection to database"""
-    return psycopg2.connect(
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        database=os.getenv("DB_NAME")
-    )
-
-
 COLUMN_NAME_MAP = {
     'time': 'Time',
     'place': 'Place',
@@ -68,6 +56,17 @@ COLUMN_NAME_MAP = {
     'magnitude_type': 'Magnitude Type',
     'network_name': 'Network Name',
 }
+
+
+def get_connection() -> connection:
+    """Gets connection to database"""
+    return psycopg2.connect(
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+        database=os.getenv("DB_NAME")
+    )
 
 
 def extract_data() -> pd.DataFrame:
