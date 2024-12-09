@@ -75,8 +75,8 @@ def normalise_text(text: str) -> str:
     """Converts special Unicode characters to plain ASCII equivalents"""
     if not isinstance(text, str):
         return text
-    normalized = unicodedata.normalize('NFD', text)
-    ascii_text = re.sub(r'[\u0300-\u036f]', '', normalized)
+    normalised = unicodedata.normalize('NFD', text)
+    ascii_text = re.sub(r'[\u0300-\u036f]', '', normalised)
     return ascii_text
 
 
