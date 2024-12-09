@@ -41,10 +41,10 @@ API to allow technical users to query the database and extract information in re
   GET `/earthquakes/date?start_date=01-01-2001&end_date=02-02-2002&sort=descending`
 
 ### 5️⃣ Get Earthquakes by Alert Level
-- 🛠️ **Endpoint**: `GET /earthquakes/alert`
+- 🛠️ **Endpoint**: `GET /earthquakes/alert/colour`
 - 📄 **Description**: Get earthquakes fo a specific alert level
 - 📋 **Query Parameters**:
-  - `alert_level` (string, optional). Filter earthquakes by alert level: 
+  - `colour` (string, required). Filter earthquakes by alert level: 
     - `green`, `yellow`, `orange`, `red`
 - 💡 **Example**:
-  GET `/earthquakes/alerts?alert_level=red`
+  GET `/earthquakes/alert/colour=red`

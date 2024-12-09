@@ -90,13 +90,13 @@ def endpoint_get_earthquakes_between_date():
     return jsonify(earthquakes), 200
 
 
-@app.route("/earthquakes/alert/<string:color>")
-def endpoint_earthquakes_by_alert_color(color: str):
+@app.route("/earthquakes/alert/<string:colour>")
+def endpoint_earthquakes_by_alert_colour(colour: str):
     """Returns all earthquakes with a certain alert level."""
-    if not valid_color(color.lower()):
+    if not valid_color(colour.lower()):
         return jsonify({"error": "Invalid alert level"}), 404
 
-    earthquakes = get_earthquakes_by_alert_level(color.lower())
+    earthquakes = get_earthquakes_by_alert_level(colour.lower())
 
     if not earthquakes:
         return jsonify({"error": "No earthquakes found"}), 404
