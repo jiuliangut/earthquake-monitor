@@ -1,7 +1,7 @@
 """Script to extract earthquake data from RDS and upload to S3 bucket as CSV"""
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import boto3
 import psycopg2
@@ -27,7 +27,7 @@ COLUMNS = ['place', 'time', 'magnitude', 'alert_type', 'felt_report_count',
            'cdi', 'latitude', 'longitude', 'depth', 'magnitude_type',
            'network_name']
 
-PDF_FILE = f"""/tmp/{datetime.today().strftime('%Y-%m-%d')}-data.pdf"""
+PDF_FILE = f"""/tmp/{(datetime.today() - timedelta(days=7)).strftime('%Y-%m-%d')}-data.pdf"""
 
 COL_WIDTHS = [
     170,  # place
@@ -142,7 +142,7 @@ def upload_to_s3():
     """Uploads pdf file to S3 bucket and clears temp file"""
     s3_client = get_client()
     bucket_name = os.getenv("BUCKET_NAME")
-    s3_key = f"""{datetime.today().strftime('%Y-%m-%d')}-data.pdf"""
+    s3_key = f"""{(datetime.today() - timedelta(days=7)).strftime('%Y-%m-%d')}-data.pdf"""
     try:
         logging.info("Uploading to bucket")
         s3_client.upload_file(
