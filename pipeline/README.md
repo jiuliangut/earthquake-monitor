@@ -73,7 +73,7 @@ earthquake_etl/
   - Validation of extracting the correct data for the correct time.
   - Correct handling of missing fields and empty requests.
   - Verification of the correct output format.
-  - pytest coverage: _(Insert coverage here)_
+  - pytest coverage: 91%
 
 ### **2. `test_transform.py`**
 - **Purpose:** Ensures data transformations are correct.
@@ -81,7 +81,7 @@ earthquake_etl/
   - Validation of latitude, longitude, magnitude, and CDI values.
   - Correct handling of missing or invalid fields.
   - Verification of the cleaned output format.
-  - pytest coverage: _(Insert coverage here)_
+  - pytest coverage: 100%
 
 ### **3. `test_load.py`**
 - **Purpose:** Validates data insertion logic into the database.
@@ -89,7 +89,7 @@ earthquake_etl/
   - Correct mapping of foreign keys.
   - Successful batch inserts into the `earthquakes` table.
   - Handling of invalid data during database operations.
-  - pytest coverage: _(Insert coverage here)_
+  - pytest coverage: 83%
 
 ---
 
