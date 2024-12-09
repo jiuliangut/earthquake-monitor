@@ -115,8 +115,6 @@ resource "aws_lambda_function" "c14-earthquake-monitor-etl-lambda-function-tf" {
 
   environment {
     variables = {
-      ACCESS_KEY_ID     = var.AWS_ACCESS_KEY,
-      SECRET_ACCESS_KEY = var.AWS_SECRET_KEY,
       DB_HOST           = var.DB_HOST,
       DB_NAME           = var.DB_NAME,
       DB_USER           = var.DB_USER,
