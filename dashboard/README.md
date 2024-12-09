@@ -93,8 +93,8 @@ Prerequisites
 ## ⚙️ Environment Variables
 Ensure the following environment variables are set in a .env file:
 ```
-AWS_ACCESS_KEY_ID=<your-access-key-id>
-AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
+ACCESS_KEY_ID=your_aws_access_key
+SECRET_ACCESS_KEY=your_aws_secret_access_key
 ```
 
 ## 🌍 AWS S3 Integration
