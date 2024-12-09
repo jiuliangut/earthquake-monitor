@@ -30,7 +30,7 @@ resource "aws_security_group" "c14-earthquake-monitor-db-sg" {
 resource "aws_db_instance" "c14-earthquake-monitor-db" {
     allocated_storage    = 20
     engine               = "postgres"
-    engine_version       = "16.2"
+    engine_version       = "16.3"
     instance_class       = "db.t3.micro"
     db_name              = var.DB_NAME
     identifier           = "c14-earthquake-monitor-db"
