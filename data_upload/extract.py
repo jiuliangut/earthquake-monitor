@@ -178,7 +178,7 @@ def upload_to_s3():
     """Uploads pdf file to S3 bucket and clears temp file"""
     s3_client = get_client()
     bucket_name = os.getenv("BUCKET_NAME")
-    s3_key = f"""{(datetime.today() - timedelta(days=7)).strftime('%Y-%m-%d')}-data-TEST.pdf"""
+    s3_key = f"""{(datetime.today() - timedelta(days=7)).strftime('%Y-%m-%d')}-data.pdf"""
     try:
         logging.info("Uploading to bucket")
         s3_client.upload_file(
