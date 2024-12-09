@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 import pydeck as pdk
 import boto3
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from dotenv import load_dotenv
 from db_queries import get_connection, get_cursor, get_data_from_range
 
@@ -21,7 +22,8 @@ def setup_page() -> None:
 
     pdf = download_pdf_from_s3()
 
-    setup_sidebar(pdf)
+    if pdf:
+        setup_sidebar(pdf)
 
     emoji_left, title, emoji_right = st.columns((1, 1.5, 1))
 
@@ -232,8 +234,12 @@ def download_pdf_from_s3():
         response = s3.get_object(Bucket=BUCKET_NAME, Key=file_name)
         pdf_file = response['Body'].read()
         return pdf_file
+    except (NoCredentialsError, PartialCredentialsError) as e:
+        st.error(
+            f"AWS credentials not found. Please verify the configuration. {e}")
+        return None
     except Exception as e:
-        st.error(f"Error retrieving the file from S3: {e}")
+        st.error(f"Error fetching file from S3: {str(e)}")
         return None
 
 

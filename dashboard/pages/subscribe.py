@@ -6,12 +6,11 @@ import re
 from datetime import datetime, timedelta
 import streamlit as st
 import boto3
-from db_queries import get_connection, get_cursor, get_regions, get_topic_arns
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from dotenv import load_dotenv
+from db_queries import get_connection, get_cursor, get_regions, get_topic_arns
 
 BUCKET_NAME = "c14-earthquake-monitor-storage"
-
-load_dotenv()
 
 
 def setup_page():
@@ -20,15 +19,19 @@ def setup_page():
         page_title="Subscribe - Earthquake Monitor System", page_icon="🌏",
         layout="wide", initial_sidebar_state="collapsed")
 
+    load_dotenv()
+
     conn = get_connection()
     cursor_ = get_cursor(conn)
-    sns_client = boto3.client('sns')
+    sns_client = boto3.client('sns', region_name="eu-west-2")
 
     regions = get_regions(cursor_)
 
     pdf = download_pdf_from_s3()
 
-    setup_sidebar(pdf)
+    if pdf:
+        setup_sidebar(pdf)
+
     setup_header()
     setup_subscription_form(cursor_, sns_client, regions)
 
@@ -197,6 +200,10 @@ def download_pdf_from_s3():
         response = s3.get_object(Bucket=BUCKET_NAME, Key=file_name)
         pdf_file = response['Body'].read()
         return pdf_file
+    except (NoCredentialsError, PartialCredentialsError) as e:
+        st.error(
+            f"AWS credentials not found. Please verify the configuration. {e}")
+        return None
     except Exception as e:
         st.error(f"Error retrieving the file from S3: {e}")
         return None
