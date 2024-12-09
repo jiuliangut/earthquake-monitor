@@ -96,24 +96,26 @@ def lambda_handler(event, context):
     load_dotenv()
     rds_connection = get_connection()
     rds_cursor = get_cursor(rds_connection)
-    topics = get_topics(event, rds_cursor)
-    sns_client = get_client()
-    logging.info("Notifying subscribers")
-    for topic in topics:
-        topic_arn = get_topic_arn(topic, rds_cursor)
-        try:
-            sns_client.publish(TopicArn=topic_arn,
-                               Message=f"""Warning! Alert Level {event['alert'].title()}
-Earthquake of magnitude {event['magnitude']} {event['place']} ({event['latitude']},{event['longitude']}) at {event['time']}""")
-        except Exception as e:
-            logging.error(
-                f"Could not send notifications to topic: {topic}. Error: {e}")
+    for earthquake in event:
+        topics = get_topics(earthquake, rds_cursor)
+        sns_client = get_client()
+        logging.info("Notifying subscribers")
+        for topic in topics:
+            topic_arn = get_topic_arn(topic, rds_cursor)
+            try:
+                sns_client.publish(TopicArn=topic_arn,
+                                   Message=f"""Warning! Alert Level {earthquake['alert'].title()}
+Earthquake of magnitude {earthquake['magnitude']} {earthquake['place']} ({earthquake['latitude']},\
+{earthquake['longitude']}) at {earthquake['time']}""")
+            except Exception as e:
+                logging.error(
+                    f"Could not send notifications to topic: {topic}. Error: {e}")
 
 
 if __name__ == "__main__":
-    lambda_handler({"longitude": -10.89898,
+    lambda_handler([{"longitude": -10.89898,
                     "latitude": 35,
-                    "magnitude": 2,
-                    "alert": 'red',
-                    'place': 'Somewhere',
-                    "time": "Noon"}, None)
+                     "magnitude": 2,
+                     "alert": 'red',
+                     'place': 'Somewhere',
+                     "time": "Noon"}], None)
