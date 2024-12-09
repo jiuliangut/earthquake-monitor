@@ -47,31 +47,6 @@ resource "aws_iam_role_policy_attachment" "ecs_service_s3_policy_attachment" {
   policy_arn = aws_iam_policy.ecs_service_s3_policy.arn
 }
 
-# IAM Policy for RDS Access
-resource "aws_iam_policy" "ecs_service_rds_policy" {
-  name        = "c14-earthquake-monitor-ecs-service-rds-policy"
-  description = "Allow ECS service to connect to RDS instance"
-
-  policy = jsonencode({
-    Version : "2012-10-17",
-    Statement : [
-      {
-        Effect   : "Allow",
-        Action   : [
-          "rds-db:connect"
-        ],
-        Resource : "arn:aws:rds-db:eu-west-2:${var.ACCOUNT_ID}:dbuser:${var.RDS_RESOURCE_ID}/${var.DB_USER}"
-      }
-    ]
-  })
-}
-
-# Attach RDS Policy to ECS Service Role
-resource "aws_iam_role_policy_attachment" "ecs_service_rds_policy_attachment" {
-  role       = aws_iam_role.ecs_service_role.name
-  policy_arn = aws_iam_policy.ecs_service_rds_policy.arn
-}
-
 resource "aws_cloudwatch_log_group" "dashboard_log_group" {
   name              = "/ecs/c14-earthquake-monitor-dashboard"
   lifecycle {
@@ -111,9 +86,11 @@ resource "aws_ecs_task_definition" "c14_earthquake_monitor_dashboard" {
         { name = "DB_HOST", value = var.DB_HOST },
         { name = "DB_PORT", value = var.DB_PORT },
         { name = "DB_USER", value = var.DB_USER },
-        { name = "S3_BUCKET", value = var.S3_BUCKET},
         { name = "DB_NAME", value = var.DB_NAME },
-        { name = "DB_PASSWORD", value = var.DB_PASSWORD }
+        { name = "DB_PASSWORD", value = var.DB_PASSWORD },
+        { name = "AWS_ACCESS_KEY_ID", value = var.AWS_ACCESS_KEY_ID},
+        { name = "AWS_SECRET_ACCESS_KEY", value = var.AWS_SECRET_ACCESS_KEY},
+        { name = "AWS_REGION", value = var.AWS_REGION}
       ]
 
       logConfiguration = {
@@ -134,7 +111,7 @@ resource "aws_ecs_task_definition" "c14_earthquake_monitor_dashboard" {
 }
 
 resource "aws_security_group" "ecs_service_sg" {
-  name        = "c14-team-growth-streamlit-sg"
+  name        = "c14-earthquake-monitor-streamlit-sg"
   description = "Allow access to Streamlit app"
   vpc_id      = var.C14_VPC
 
@@ -149,7 +126,6 @@ resource "aws_security_group" "ecs_service_sg" {
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
     }
-  
 
   egress {
       description = "Allows all outbound traffic"  

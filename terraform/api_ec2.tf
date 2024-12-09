@@ -21,6 +21,14 @@ resource "aws_security_group" "c14-earthquake-api-sg" {
   }
 
   ingress {
+    description = "Allow Flask API (port 5000)"
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  
+  }
+
+  ingress {
     description = "Allow SSH from trusted IP range"
     from_port   = 22
     to_port     = 22
@@ -89,14 +97,14 @@ resource "aws_iam_instance_profile" "c14_earthquake_api_ec2_instance_profile" {
 
 # EC2 instance for hosting the API
 resource "aws_instance" "c14-earthquake-api-ec2" {
-  ami           = "ami-0acc77abdfc7ed5a6"  # Amazon Linux
-  instance_type = "t2.nano"                # Free tier-eligible instance type
-  subnet_id     = "subnet-0497831b67192adc2"  # Replace with your correct subnet ID in the VPC
-  associate_public_ip_address = true       # Ensures API is accessible publicly
+  ami           = "ami-0acc77abdfc7ed5a6"
+  instance_type = "t2.nano"
+  subnet_id     = "subnet-0497831b67192adc2" 
+  associate_public_ip_address = true 
 
   vpc_security_group_ids = [aws_security_group.c14-earthquake-api-sg.id]
 
-  key_name = "c14-krish-seechurn-key2"     # Replace with your SSH key name
+  key_name = "c14-krish-seechurn-key2"
 
   iam_instance_profile = aws_iam_instance_profile.c14_earthquake_api_ec2_instance_profile.name
 

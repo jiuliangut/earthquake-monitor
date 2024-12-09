@@ -17,7 +17,7 @@ def lambda_handler(event, context):
 
         if len(extracted_earthquake_data) == 0:
             return {
-                "status code": 200,
+                "status_code": 200,
                 "body": "No new earthquake data"
             }
 
@@ -25,15 +25,18 @@ def lambda_handler(event, context):
 
         load_data(cleaned_earthquake_data)
 
+        for earthquake in cleaned_earthquake_data:
+            earthquake['at'] = str(earthquake['at'])
+
         return {
-            "status code": 200,
-            "body": "ETL pipeline executed successfully"
+            "status_code": 200,
+            "body": cleaned_earthquake_data
         }
 
     except Exception as e:
         return {
-            "status code": 500,
-            "body": f"An unexpected error occurred {e}"
+            "status_code": 500,
+            "error": f"An unexpected error occurred {e}"
         }
 
 

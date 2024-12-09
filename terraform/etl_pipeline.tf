@@ -1,5 +1,7 @@
 provider "aws" {
-    region = "eu-west-2"
+    region     = var.AWS_REGION
+    secret_key = var.AWS_SECRET_ACCESS_KEY
+    access_key = var.AWS_ACCESS_KEY_ID
 }
 
 # ------ Earthquake RDS SETUP
@@ -30,7 +32,7 @@ resource "aws_security_group" "c14-earthquake-monitor-db-sg" {
 resource "aws_db_instance" "c14-earthquake-monitor-db" {
     allocated_storage    = 20
     engine               = "postgres"
-    engine_version       = "16.2"
+    engine_version       = "16.3"
     instance_class       = "db.t3.micro"
     db_name              = var.DB_NAME
     identifier           = "c14-earthquake-monitor-db"
@@ -159,9 +161,9 @@ resource "aws_iam_role_policy" "c14-earthquake-monitor-etl-scheduler_execution_p
     Version = "2012-10-17"
     Statement = [
       {
-        Action   = "lambda:InvokeFunction"
+        Action   = "states:StartExecution"
         Effect   = "Allow"
-        Resource = aws_lambda_function.c14-earthquake-monitor-etl-lambda-function-tf.arn
+        Resource = aws_sfn_state_machine.c14_earthquake_monitor_step_function.arn
       }
     ]
   })
@@ -178,7 +180,7 @@ resource "aws_scheduler_schedule" "c14-earthquake-monitor-etl-schedule-tf" {
   }
 
   target {
-    arn      = aws_lambda_function.c14-earthquake-monitor-etl-lambda-function-tf.arn
+    arn      = aws_sfn_state_machine.c14_earthquake_monitor_step_function.arn
     role_arn = aws_iam_role.c14-earthquake-monitor-etl-scheduler_execution_role-tf.arn
   }
 }

@@ -1,9 +1,10 @@
 ![Pylint Score](.github/badges/pylint.svg)
 ![Pytest Score](.github/badges/test.svg)
 
-# c14 Earthquake Monitor
 
-## Project Overview
+# 🌍💥 c14 Earthquake Monitor 
+
+## 🌍 Project Overview
 
 Earthquakes occur regularly, often with little warning, posing risks to life and property. Timely access to earthquake data, both real-time and historical, can empower individuals and organisations to make informed decisions, enhancing preparedness and response.
 
@@ -11,7 +12,7 @@ The Earthquake Monitor project continuously ingests real-time earthquake data fr
 
 ---
 
-## Project Map
+## 🗺️ Project Map
 
 - dashboard
 - diagrams
@@ -20,7 +21,7 @@ The Earthquake Monitor project continuously ingests real-time earthquake data fr
 
 ---
 
-## Project Architecture
+## 🏗️ Project Architecture
 
 ![Architecture Diagram](diagrams/architecture.png)
 
@@ -56,21 +57,21 @@ Amazon SES ensures reliable email delivery for user reports and notifications, w
 
 ---
 
-## ERD (Entity Relationship Diagram)
+## 📊 ERD (Entity Relationship Diagram)
 
 ![ERD Diagram](diagrams/erd.png)
 
 1. **3NF:** Schema has been put into 3NF to eliminate redundancy, maintain data integrity, improve query efficiency which is particularly important as all queries from the API will be regarding the ```earthquake``` table.
 
-2. **Two Separate Table Groups:** The separate ```user``` table chain was created to fulfil the requirement to allow users to subscribe to specific regions, that have been manually created, at specific magnitude values and get notifications whenever an earthquake that matches those requirements are inserted into the database. 
+2. **Two Separate Table Groups:** The separate ```user``` table chain was created to fulfil the requirement to allow users to subscribe to specific regions, that have been manually created, at specific magnitude values and get notifications whenever an earthquake that matches those requirements are inserted into the database.
 
 ---
 
-## Quick-Start Guide
+## 🚀 Quick-Start Guide
 
-Note: The following instructions are made from macOS perspective, these may not behave as expected under different operating systems. 
+Note: The following instructions are made from macOS perspective, these may not behave as expected under different operating systems.
 
-### Prerequisites
+### 📋 Prerequisites
 
 This project mainly runs using the Python programming language. To get started, ensure you have Python 3.10 (or above) installed.
 
@@ -78,42 +79,51 @@ In your terminal:
 
 **Step 1:** Clone this repo to your local machine
 
-    ```sh
-    git clone https://github.com/jiuliangut/earthquake-monitor.git
-    ```
+
+   ```git clone https://github.com/jiuliangut/earthquake-monitor.git```
+
 
 **Step 2:** Navigate into the cloned repository:
-    ```sh
-    cd earthquake-monitor
-    ```
+
+
+   ```cd earthquake-monitor```
+
 
 **Step 3:** Set up the virtual environment:
-    ```sh
-    python3.10 -m venv .venv
-    source .venv/bin/activate
-    ```
+
+
+   ```
+   python3.10 -m venv .venv
+   source .venv/bin/activate
+   ```
 
 **Step 4:** Install all required dependencies from the `requirements.txt` file:
-    ```sh
-    pip3 install -r requirements.txt
-    ```
+
+
+   ```pip3 install -r requirements.txt```
+
 
 ## Setup Overview
 
 For a more in-depth setup, please refer to the following:
 
-1. **Infrastructure:**
-   - To provision the resources, please navigate to the [Terraform README](./terraform/README.md) in the `terraform` folder for a detailed step-by-step guide to setting up the necessary infrastructure. 
+1. 🌐 **Infrastructure:**
+  - To provision the resources, please navigate to the [Terraform README](./terraform/README.md) in the `terraform` folder for a detailed step-by-step guide to setting up the necessary infrastructure.
 
-2. **ETL Pipeline:**
-   - To test the project locally, please navigate to the [Pipeline README](./pipeline/README.md) in the `pipeline' folder for details on the prerequisites, install requirements etc. as well as the dockerisation process for running the project on the cloud. 
+2. 🔄 **ETL Pipeline:**
+  - To test the project locally, please navigate to the [Pipeline README](./pipeline/README.md) in the `pipeline' folder for details on the prerequisites, install requirements etc. as well as the dockerisation process for running the project on the cloud.
 
-3. **Dashboard:**
-   - To deploy the dashboard locally or on the cloud, please refer to the [Dashboard README](./dashboard/README.md) for further guidance.
+
+3. 🔌 **API**
+  - For more technical users, please navigate to the [API README](./api/README.md) in the `api` folder for any necessary information.
+
+
+4. 📊 **Dashboard:**
+  - To deploy the dashboard locally or on the cloud, please refer to the [Dashboard README](./dashboard/README.md) for further guidance.
 
 ---
 
-## Contributors
+## 👥 Contributors
 
 | Full Name          | GitHub Username                                           | Primary Role  | Secondary Role       |
 |--------------------|-----------------------------------------------------------|---------------|----------------------|
