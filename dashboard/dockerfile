@@ -1,0 +1,16 @@
+FROM python:latest
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+
+COPY db_queries.py .
+COPY dashboard.py .
+
+RUN mkdir -p /app/pages
+COPY pages/subscribe.py /app/pages/subscribe.py
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "dashboard.py"]

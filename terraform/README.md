@@ -1,8 +1,8 @@
-# C14 Earthquake Monitor Terraform Guide
+# 🌍💾 C14 Earthquake Monitor Terraform Guide
 
 This repository contains the infrastructure as code (IaC) for the **C14 Earthquake Monitor ETL Pipeline**, deployed using Terraform. The pipeline includes resources for managing earthquake data, including an RDS database, S3 storage, Lambda functions, and scheduled ETL jobs.
 
-## Table of Contents
+## 🗂️ Table of Contents
 1. [Architecture Overview](#architecture-overview)
 2. [Prerequisites](#prerequisites)
 3. [Project Structure](#project-structure)
@@ -12,29 +12,29 @@ This repository contains the infrastructure as code (IaC) for the **C14 Earthqua
 
 ---
 
-## Architecture Overview
+## 📐 Architecture Overview
 
 The infrastructure comprises the following AWS services:
-- **RDS (PostgreSQL)**: Stores earthquake data.
-- **S3**: Provides storage for raw and processed data.
-- **Lambda**: Executes ETL logic.
-- **EventBridge Scheduler**: Triggers the Lambda function every minute.
-- **IAM Roles & Policies**: Manage permissions for Lambda and EventBridge.
-- **CloudWatch**: Logs Lambda execution and tracks performance.
+- 🗄️ **RDS (PostgreSQL)**: Stores earthquake data.
+- 📦 **S3**: Provides storage for raw and processed data.
+- 🔄 **Lambda**: Executes ETL logic.
+- ⏰ **EventBridge Scheduler**: Triggers the Lambda function every minute.
+- 🔐 **IAM Roles & Policies**: Manage permissions for Lambda and EventBridge.
+- 📈 **CloudWatch**: Logs Lambda execution and tracks performance.
 
 ---
 
-## Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
-1. **Terraform v1.x** or higher installed.
-2. **AWS CLI v2** configured with credentials.
+1. 🛠️ **Terraform v1.x** or higher installed.
+2. 💻 **AWS CLI v2** configured with credentials.
 3. Access to:
-    - A VPC with public subnets.
+    - 🌐 A VPC with public subnets.
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 
 ```plaintext
 terraform/
@@ -51,7 +51,7 @@ terraform/
 
 ---
 
-# Setup and Deployment
+# 🚀 Setup and Deployment
 
 ## Clone the repository
 Run the following commands to clone the repository and navigate to the `terraform` directory:
@@ -76,7 +76,7 @@ DATA_UPLOAD_ECR_URI = "your_ecr_repo_uri"
 DASHBOARD_ECR_URI = "your_ecr_repo_uri"
 ```
 
-### Initialise Terraform
+### Initialise Terraform 🛠️
 
 To initialise the Terraform environment, run:
 
@@ -84,7 +84,7 @@ To initialise the Terraform environment, run:
 terraform init
 ```
 
-### Validate the configuration
+### Validate the configuration ✅
 
 Ensure that your Terraform configuration files are valid:
 
@@ -92,7 +92,7 @@ Ensure that your Terraform configuration files are valid:
 terraform validate
 ```
 
-### Deploy the infrastructure
+### Deploy the infrastructure 🏗️
 
 Apply the Terraform configuration to deploy the infrastructure:
 
@@ -100,18 +100,18 @@ Apply the Terraform configuration to deploy the infrastructure:
 terraform apply
 ```
 
-### Verify deployment
+### Verify deployment 🔍
 
 After deployment, confirm the following components are correctly set up:
 
-1. **RDS availability and connectivity**  
+1. 🗄️ **RDS availability and connectivity**  
    Verify the RDS instance is available and can be connected to with the provided credentials.
 
-2. **S3 bucket creation**  
+2. 📦 **S3 bucket creation**  
    Ensure the S3 bucket `c14-earthquake-monitor-storage` is created successfully.
 
-3. **Lambda function and CloudWatch logging**  
+3. 🔄 **Lambda function and CloudWatch logging**  
    Confirm the Lambda function is deployed and logging to CloudWatch as expected.
 
-4. **ECRs have all been created**
+4. 📦 **ECRs have all been created**
     Confirm all three ECRs have been created with their expected names. 
