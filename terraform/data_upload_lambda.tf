@@ -52,8 +52,8 @@ resource "aws_lambda_function" "c14-earthquake-report-lambda" {
   function_name    = "c14-earthquake-report-lambda"
   role             = aws_iam_role.c14_lambda_execution_role.arn
   package_type     = "Image"
-  image_uri        = "${var.ETL_ECR_URI}:latest"
-  timeout          = 900 
+  image_uri        = var.DATA_UPLOAD_ECR_URI
+  timeout       = 900
   environment {
     variables = {
       DB_HOST           = var.DB_HOST
