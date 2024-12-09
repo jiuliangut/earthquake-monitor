@@ -96,24 +96,37 @@ def lambda_handler(event, context):
     load_dotenv()
     rds_connection = get_connection()
     rds_cursor = get_cursor(rds_connection)
-    topics = get_topics(event, rds_cursor)
-    sns_client = get_client()
-    logging.info("Notifying subscribers")
-    for topic in topics:
-        topic_arn = get_topic_arn(topic, rds_cursor)
-        try:
-            sns_client.publish(TopicArn=topic_arn,
-                               Message=f"""Warning! Alert Level {event['alert'].title()}
-Earthquake of magnitude {event['magnitude']} {event['place']} ({event['latitude']},{event['longitude']}) at {event['time']}""")
-        except Exception as e:
-            logging.error(
-                f"Could not send notifications to topic: {topic}. Error: {e}")
+    for earthquake in event:
+        topics = get_topics(earthquake, rds_cursor)
+        sns_client = get_client()
+        logging.info("Notifying subscribers")
+        for topic in topics:
+            topic_arn = get_topic_arn(topic, rds_cursor)
+            try:
+                sns_client.publish(TopicArn=topic_arn,
+                                   Message=f"""Warning! Alert Level {earthquake['alert'].title()}
+Earthquake of magnitude {earthquake['magnitude']} {earthquake['location']} ({earthquake['latitude']:.2f},\
+{earthquake['longitude']:.2f}) at {earthquake['at']}
+More information can be found at: {earthquake['event_url']}""")
+            except Exception as e:
+                logging.error(
+                    f"Could not send notifications to topic: {topic}. Error: {e}")
 
 
 if __name__ == "__main__":
-    lambda_handler({"longitude": -10.89898,
-                    "latitude": 35,
-                    "magnitude": 2,
-                    "alert": 'red',
-                    'place': 'Somewhere',
-                    "time": "Noon"}, None)
+    lambda_handler([
+        {
+            "at": "2024-12-09 15:55:16",
+            "event_url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc75100146.geojson",
+            "felt": 0,
+            "location": "14 km SSE of Covelo, CA",
+            "magnitude": 1.65,
+            "network": "nc",
+            "alert": "green",
+            "magnitude_type": "md",
+            "cdi": 0,
+            "longitude": -123.141998291016,
+            "latitude": 39.7011680603027,
+            "depth": 4.1100001335144
+        }
+    ], None)
