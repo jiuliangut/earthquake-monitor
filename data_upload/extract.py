@@ -124,7 +124,6 @@ def compute_summary(data: pd.DataFrame) -> list:
         ["\n Strongest Earthquake \n",
             f"Magnitude: {highest_magnitude['Magnitude']} \n Location: {highest_magnitude['Place']} \n Time: {highest_magnitude['Time']}"]
     ]
-    print(summary)
     return summary
 
 
