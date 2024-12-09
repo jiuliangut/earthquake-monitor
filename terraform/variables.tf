@@ -34,11 +34,14 @@ variable C14_CLUSTER{
     type = string
 }
 
-variable "AWS_ACCESS_KEY" {
+variable "AWS_ACCESS_KEY_ID" {
   type = string
 }
 variable "AWS_SECRET_KEY" {
   type = string
+}
+variable "AWS_REGION" {
+    type = string
 }
 
 variable "ETL_ECR_URI" {

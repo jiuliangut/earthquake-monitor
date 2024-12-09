@@ -111,9 +111,11 @@ resource "aws_ecs_task_definition" "c14_earthquake_monitor_dashboard" {
         { name = "DB_HOST", value = var.DB_HOST },
         { name = "DB_PORT", value = var.DB_PORT },
         { name = "DB_USER", value = var.DB_USER },
-        { name = "S3_BUCKET", value = var.S3_BUCKET},
         { name = "DB_NAME", value = var.DB_NAME },
-        { name = "DB_PASSWORD", value = var.DB_PASSWORD }
+        { name = "DB_PASSWORD", value = var.DB_PASSWORD },
+        { name = "AWS_ACCESS_KEY_ID", value = var.AWS_ACCESS_KEY_ID},
+        { name = "AWS_SECRET_KEY", value = var.AWS_SECRET_KEY},
+        { name = "AWS_REGION", value = var.AWS_REGION}
       ]
 
       logConfiguration = {
