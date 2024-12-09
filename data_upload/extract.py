@@ -1,6 +1,8 @@
-"""Script to extract earthquake data from RDS and upload to S3 bucket as CSV"""
+"""Script to extract earthquake data from RDS and upload to S3 bucket as PDF"""
 import os
 import logging
+import unicodedata
+import re
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import boto3
@@ -11,7 +13,7 @@ import pandas as pd
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -69,6 +71,15 @@ def get_connection() -> connection:
     )
 
 
+def normalise_text(text: str) -> str:
+    """Converts special Unicode characters to plain ASCII equivalents"""
+    if not isinstance(text, str):
+        return text
+    normalised = unicodedata.normalize('NFD', text)
+    ascii_text = re.sub(r'[\u0300-\u036f]', '', normalised)
+    return ascii_text
+
+
 def extract_data() -> pd.DataFrame:
     """Extracts data from the database and prepares it for PDF generation"""
     conn = None
@@ -84,6 +95,8 @@ def extract_data() -> pd.DataFrame:
             lambda x: f"{x:.6f}" if pd.notnull(x) else x)
         earthquakes['Longitude'] = earthquakes['Longitude'].apply(
             lambda x: f"{x:.6f}" if pd.notnull(x) else x)
+        earthquakes['Place'] = earthquakes['Place'].apply(
+            lambda x: normalise_text(str(x)) if pd.notnull(x) else x)
         earthquakes["Time"] = earthquakes["Time"].apply(
             lambda x: pd.to_datetime(x).strftime(
                 "%Y-%m-%d %H:%M") if pd.notnull(x) else x
@@ -96,6 +109,22 @@ def extract_data() -> pd.DataFrame:
     finally:
         if conn:
             conn.close()
+
+
+def compute_summary(data: pd.DataFrame) -> list:
+    """Calculates summary analytics from earthquake dataframe"""
+    highest_magnitude = data.loc[data['Magnitude'].idxmax()]
+    number_of_earthquakes = len(data)
+    average_magnitude = data['Magnitude'].mean()
+
+    summary = [
+        ["Weekly Summary"],
+        ["Number of Earthquakes", number_of_earthquakes],
+        ["Average Magnitude", f"{average_magnitude:.2f}"],
+        ["\n Strongest Earthquake \n",
+            f"Magnitude: {highest_magnitude['Magnitude']} \n Location: {highest_magnitude['Place']} \n Time: {highest_magnitude['Time']}"]
+    ]
+    return summary
 
 
 def make_pdf(data: pd.DataFrame) -> None:
@@ -112,21 +141,27 @@ def make_pdf(data: pd.DataFrame) -> None:
                        for cell in row]
         table_data.append(wrapped_row)
 
-    pdf = SimpleDocTemplate(PDF_FILE, pagesize=landscape(letter))
-    table = Table(table_data, colWidths=COL_WIDTHS)
+    # Summary table
+    summary_data = compute_summary(data)
+    summary_table = Table(summary_data, colWidths=[150, 350])
     style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.olive),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 6),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ])
+    summary_table.setStyle(style)
 
-    table.setStyle(style)
-    pdf.build([table])
+    # Data table
+    pdf = SimpleDocTemplate(PDF_FILE, pagesize=landscape(letter))
+    data_table = Table(table_data, colWidths=COL_WIDTHS)
+    data_table.setStyle(style)
+    line_space = Spacer(width=0, height=20)
+    pdf.build([summary_table, line_space, data_table])
     logging.info("Data successfully written to %s", PDF_FILE)
 
 
