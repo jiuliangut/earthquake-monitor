@@ -4,8 +4,9 @@ from datetime import datetime, timedelta
 import pandas as pd
 import streamlit as st
 import pydeck as pdk
-from db_queries import *
 import boto3
+from dotenv import load_dotenv
+from db_queries import get_connection, get_cursor, get_data_from_range
 
 
 BUCKET_NAME = "c14-earthquake-monitor-storage"
@@ -15,6 +16,8 @@ def setup_page() -> None:
     """Sets up Streamlit page"""
     st.set_page_config(page_title="Earthquake Monitor System",
                        page_icon="🌏", layout="wide", initial_sidebar_state="auto")
+
+    load_dotenv()
 
     pdf = download_pdf_from_s3()
 
@@ -30,11 +33,11 @@ def setup_page() -> None:
                     unsafe_allow_html=True)
 
     with emoji_right:
-        st.markdown("<h1 style='text-align: right;'>🌍🌲</h1>",
+        st.markdown("<h1 style='text-align: right;'>🌲🌍</h1>",
                     unsafe_allow_html=True)
 
     conn = get_connection()
-    cursor = get_cursor(conn)
+    cursor_ = get_cursor(conn)
 
     left, right = st.columns(2)
 
@@ -46,13 +49,11 @@ def setup_page() -> None:
 
     if date_range:
         start_date, end_date = date_range
-        filtered_data = get_data_from_range(start_date, end_date, cursor)
+        filtered_data = get_data_from_range(start_date, end_date, cursor_)
 
         if not filtered_data.empty:
 
             earthquake_df = validate_df(filtered_data)
-
-            st.dataframe(earthquake_df)
 
             earthquake_df = filtered_data[filtered_data['magnitude']
                                           > min_magnitude]
@@ -93,25 +94,41 @@ def validate_df(earthquake_df: pd.DataFrame) -> pd.DataFrame:
     return earthquake_df
 
 
-def earthquake_map(earthquake_df: pd.DataFrame):
+def earthquake_map(earthquake_df: pd.DataFrame) -> None:
     """Displays earthquake data on a world map"""
+    map_df = prepare_map_data(earthquake_df)
+    point_layer = create_point_layer(map_df)
+    tooltip = create_tooltip()
+
+    chart = pdk.Deck(point_layer, tooltip=tooltip)
+    map_data = st.pydeck_chart(
+        chart, on_select="rerun", selection_mode="multi-object")
+
+    display_selected_earthquake_details(map_data)
+
+
+def prepare_map_data(earthquake_df: pd.DataFrame) -> pd.DataFrame:
+    """Prepares data for displaying on the map"""
     map_df = earthquake_df.copy()
+    map_df['time'] = map_df['time'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    map_df['size'] = map_df['magnitude'].apply(lambda x: x * 1500)
+    map_df['colour'] = map_df['alert_type'].map(get_color_map())
+    return map_df
 
-    map_df['time'] = map_df['time'].dt.strftime(
-        '%Y-%m-%d %H:%M:%S')
 
-    map_df['size'] = map_df['magnitude'].apply(lambda x: x * 2000)
-
-    color_map = {
+def get_color_map() -> dict:
+    """Returns the mapping of alert types to RGB color values"""
+    return {
         "green": [0, 255, 0],
         "yellow": [255, 255, 0],
+        "orange": [255, 140, 0],
         "red": [255, 0, 0],
     }
 
-    map_df['colour'] = map_df['alert_type'].map(
-        color_map)
 
-    point_layer = pdk.Layer(
+def create_point_layer(map_df: pd.DataFrame) -> pdk.Layer:
+    """Creates the Pydeck layer for earthquake points"""
+    return pdk.Layer(
         "ScatterplotLayer",
         data=map_df,
         id="earthquake-points",
@@ -119,12 +136,15 @@ def earthquake_map(earthquake_df: pd.DataFrame):
         pickable=True,
         auto_highlight=True,
         get_radius="size",
-        radius_min_pixels=6,
+        radius_min_pixels=5,
         radius_max_pixels=1000,
         get_color="colour"
     )
 
-    tooltip = {
+
+def create_tooltip() -> dict:
+    """Creates the tooltip for map visualization"""
+    return {
         "html": """
         <div>
             <span style="color: orange; font-weight: bold;">Location:</span>
@@ -136,53 +156,47 @@ def earthquake_map(earthquake_df: pd.DataFrame):
             <span style="color: orange; font-weight: bold;">Depth:</span>
             <span style="color: white;">{depth}</span>
         </div>
-    """,
-        "style": {
-            "backgroundColor": "black"
-        },
+        """,
+        "style": {"backgroundColor": "black"},
     }
 
-    chart = pdk.Deck(point_layer, tooltip=tooltip)
 
-    selected_data = st.pydeck_chart(
-        chart, on_select="rerun", selection_mode="multi-object")
-
+def display_selected_earthquake_details(map_data) -> None:
+    """Displays the details of selected earthquakes"""
     st.subheader("Details of Selected Earthquakes")
-
-    selected_objects = selected_data.selection.get(
+    selected_objects = map_data.selection.get(
         "objects", {}).get("earthquake-points", [])
 
     if selected_objects:
         selected_df = pd.DataFrame(selected_objects)
-
-        selected_df = selected_df.drop(columns=['size', 'colour'])
-
-        st.dataframe(selected_df, hide_index=True)
+        selected_df = selected_df.drop(
+            columns=['size', 'colour'], errors='ignore')
+        st.dataframe(selected_df, hide_index=True, use_container_width=True)
     else:
         st.info("No earthquakes selected.")
 
 
-def recent_table(earthquake_df: pd.DataFrame):
+def recent_table(earthquake_df: pd.DataFrame) -> None:
     """Gets the 5 most recent earthquakes"""
     recent_df = earthquake_df.sort_values(by="time", ascending=False).head(5)
     st.subheader("5 Most Recent Earthquakes")
     st.dataframe(recent_df, hide_index=True, use_container_width=True)
 
 
-def biggest_earthquake_table(earthquake_df: pd.DataFrame):
+def biggest_earthquake_table(earthquake_df: pd.DataFrame) -> None:
     """Gets the biggest earthquake of the week"""
     one_week_ago = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7)
     last_week_earthquakes = earthquake_df[earthquake_df["time"]
                                           >= one_week_ago]
 
+    st.subheader("Biggest Earthquake of the Week 🥇")
+
     if last_week_earthquakes.empty:
-        st.subheader("Biggest Earthquake of the Week")
         st.write("No earthquakes recorded in the last 7 days.")
     else:
         biggest_earthquake = last_week_earthquakes.loc[
             last_week_earthquakes["magnitude"].idxmax()
         ]
-        st.subheader("Biggest Earthquake of the Week")
         st.dataframe(biggest_earthquake.to_frame().T,
                      hide_index=True, use_container_width=True)
 
@@ -198,11 +212,11 @@ def setup_sidebar(file) -> None:
     )
 
 
-def get_this_weeks_monday() -> str:
+def get_last_weeks_monday() -> str:
     """Calculates the date for this week's Monday."""
     today = datetime.today()
     days_to_subtract = today.weekday()
-    monday = today - timedelta(days=days_to_subtract)
+    monday = today - timedelta(weeks=1, days=days_to_subtract)
     return monday.strftime("%Y-%m-%d")
 
 
@@ -212,7 +226,7 @@ def download_pdf_from_s3():
     try:
         s3 = boto3.client('s3')
 
-        monday_date = get_this_weeks_monday()
+        monday_date = get_last_weeks_monday()
         file_name = f"{monday_date}-data.pdf"
 
         response = s3.get_object(Bucket=BUCKET_NAME, Key=file_name)

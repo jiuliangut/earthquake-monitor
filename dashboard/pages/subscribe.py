@@ -1,23 +1,41 @@
+"""Subscription page where users can subscribe to SNS topics for earthquake alerts"""
+
+# pylint: disable=line-too-long
+
 import re
 from datetime import datetime, timedelta
 import streamlit as st
 import boto3
+from db_queries import get_connection, get_cursor, get_regions, get_topic_arns
+from dotenv import load_dotenv
 
 BUCKET_NAME = "c14-earthquake-monitor-storage"
 
+load_dotenv()
+
 
 def setup_page():
-    """Sets up subscribe page"""
-    st.set_page_config(page_title="Subscribe - Earthquake Monitor System",
-                       page_icon="🌏", layout="wide", initial_sidebar_state="collapsed")
+    """Sets up the subscribe page."""
+    st.set_page_config(
+        page_title="Subscribe - Earthquake Monitor System", page_icon="🌏",
+        layout="wide", initial_sidebar_state="collapsed")
 
-    emoji_left, title, emoji_right = st.columns((1, 2, 1))
+    conn = get_connection()
+    cursor_ = get_cursor(conn)
+    sns_client = boto3.client('sns')
+
+    regions = get_regions(cursor_)
 
     pdf = download_pdf_from_s3()
 
     setup_sidebar(pdf)
+    setup_header()
+    setup_subscription_form(cursor_, sns_client, regions)
 
-    test = [1, 2, 3, 4, 5]
+
+def setup_header():
+    """Sets up the header of the page."""
+    emoji_left, title, emoji_right = st.columns((1, 2, 1))
 
     with emoji_left:
         st.title("🌍🌲")
@@ -27,24 +45,19 @@ def setup_page():
                     unsafe_allow_html=True)
 
     with emoji_right:
-        st.markdown("<h1 style='text-align: right;'>🌍🌲</h1>",
+        st.markdown("<h1 style='text-align: right;'>🌲🌍</h1>",
                     unsafe_allow_html=True)
 
+
+def setup_subscription_form(cursor_, sns_client, regions):
+    """Sets up the subscription form."""
     left, middle, right = st.columns((1, 3, 1))
 
     with left:
         st.write("")
 
     with middle:
-        if "form_data" not in st.session_state:
-            st.session_state.form_data = {
-                "first_name": "",
-                "last_name": "",
-                "email": "",
-                "phone": "",
-                "regions": [],
-                "min_magnitude": None,
-            }
+        reset_form_data()
 
         contact_preference = st.radio(
             "How would you like to be contacted?",
@@ -53,84 +66,82 @@ def setup_page():
 
         form_data = st.session_state.form_data
 
+        email, phone = None, None
+
         with st.form(key="subscribe_form", clear_on_submit=False):
-            st.write("Subscription Form")
-            first_name = st.text_input(
-                "First Name", value=form_data["first_name"])
-            last_name = st.text_input(
-                "Last Name", value=form_data["last_name"])
+            st.write("Subscription Form 📝")
 
-            email = None
-            phone = None
-
-            if contact_preference == "Email" or contact_preference == "Both":
+            if contact_preference in ["Email", "Both"]:
                 email = st.text_input(
-                    "Email", placeholder="example@gmail.com", value=form_data["email"]
-                )
+                    "Email", placeholder="example@gmail.com",
+                    value=form_data["email"])
 
-            if contact_preference == "Phone" or contact_preference == "Both":
+            if contact_preference in ["Phone", "Both"]:
                 phone = st.text_input(
-                    "Phone Number", placeholder="07123456789", value=form_data["phone"]
-                )
+                    "Phone Number", placeholder="07123456789",
+                    value=form_data["phone"])
 
-            regions = st.multiselect(
-                "Regions", options=test, placeholder="Choose a region", default=form_data["regions"]
-            )
+            selected_regions = st.multiselect(
+                "Regions", options=regions, placeholder="Choose a region",
+                default=form_data["regions"])
 
-            option_map = {
-                0: "All Earthquakes",
-                4: "Noticeable Earthquakes (4.0+)",
-                7: "Strong Earthquakes (7.0+)",
-            }
+            min_magnitude = select_min_magnitude()
 
-            min_magnitude = st.pills(
-                "Minimum magnitude",
-                options=option_map.keys(),
-                format_func=lambda option: option_map[option],
-                key="min_magnitude",
-            )
-            subscribe_button = st.form_submit_button("Subscribe")
-
-            if subscribe_button:
-                form_data["first_name"] = first_name
-                form_data["last_name"] = last_name
-                form_data["email"] = email
-                form_data["phone"] = phone
-                form_data["regions"] = regions
-                form_data["min_magnitude"] = min_magnitude
-
-                if not validate_name(first_name, last_name):
-                    st.warning("Please provide a valid first and last name.")
-                elif (contact_preference in ["Email", "Both"] and not validate_email(email)):
-                    st.warning("Please provide a valid email address.")
-                elif (contact_preference in ["Phone", "Both"] and not validate_phone_number(phone)):
-                    st.warning(
-                        "Please provide a valid number, must start with 07 and be 10 or 11 digits in total."
-                    )
-                elif not regions:
-                    st.warning("Please select at least one region.")
-                else:
-                    st.success("Successfully subscribed!")
-
-                    st.session_state.form_data = {
-                        "first_name": "",
-                        "last_name": "",
-                        "email": "",
-                        "phone": "",
-                        "regions": [],
-                        "min_magnitude": None,
-                    }
+            if st.form_submit_button("Subscribe"):
+                handle_subscription(cursor_, sns_client, contact_preference,
+                                    email, phone, selected_regions, min_magnitude)
 
     with right:
         st.write("")
 
 
-def validate_name(first_name: str, last_name: str) -> bool:
-    """Validates the name against a regEx"""
+def select_min_magnitude():
+    """Renders and handles the selection of minimum magnitude."""
+    option_map = {
+        0: "All Earthquakes",
+        4: "Noticeable Earthquakes (4.0+)",
+        7: "Strong Earthquakes (7.0+)",
+    }
+    return st.pills(
+        "Minimum magnitude",
+        options=option_map.keys(),
+        format_func=lambda option: option_map[option],
+        key="min_magnitude",
+    )
 
-    name_pattern = r"^[A-Za-z][a-z]+$"
 
-    return bool(re.match(name_pattern, first_name)) and bool(re.match(name_pattern, last_name))
+def handle_subscription(cursor_, sns_client, contact_preference, email, phone, regions, min_magnitude):
+    """Validates and processes the subscription."""
+    if contact_preference in ["Email", "Both"] and not validate_email(email):
+        st.warning("Please provide a valid email address.")
+    elif contact_preference in ["Phone", "Both"] and not validate_phone_number(phone):
+        st.warning(
+            "Please provide a valid phone number (start with 07, 10-11 digits).")
+    elif not regions:
+        st.warning("Please select at least one region.")
+    else:
+        st.session_state.form_data.update({
+            "preference": contact_preference,
+            "email": email,
+            "phone": phone,
+            "regions": regions,
+            "min_magnitude": min_magnitude,
+        })
+
+        add_subscription(cursor_, sns_client)
+        st.success("Successfully subscribed!")
+        reset_form_data()
+
+
+def reset_form_data():
+    """Resets the form data in session state."""
+    st.session_state.form_data = {
+        "preference": "",
+        "email": "",
+        "phone": "",
+        "regions": [],
+        "min_magnitude": None,
+    }
 
 
 def validate_email(email: str) -> bool:
@@ -166,11 +177,11 @@ def setup_sidebar(file) -> None:
     )
 
 
-def get_this_weeks_monday() -> str:
+def get_last_weeks_monday() -> str:
     """Calculates the date for this week's Monday."""
     today = datetime.today()
     days_to_subtract = today.weekday()
-    monday = today - timedelta(days=days_to_subtract)
+    monday = today - timedelta(weeks=1, days=days_to_subtract)
     return monday.strftime("%Y-%m-%d")
 
 
@@ -180,7 +191,7 @@ def download_pdf_from_s3():
     try:
         s3 = boto3.client('s3')
 
-        monday_date = get_this_weeks_monday()
+        monday_date = get_last_weeks_monday()
         file_name = f"{monday_date}-data.pdf"
 
         response = s3.get_object(Bucket=BUCKET_NAME, Key=file_name)
@@ -189,6 +200,39 @@ def download_pdf_from_s3():
     except Exception as e:
         st.error(f"Error retrieving the file from S3: {e}")
         return None
+
+
+def add_subscription(cursor, sns: boto3.client):
+    """Subscribes the user to an SNS topic"""
+
+    contact_preference = st.session_state.form_data["preference"]
+    email = st.session_state.form_data["email"]
+    phone = st.session_state.form_data["phone"]
+    regions = st.session_state.form_data["regions"]
+    min_magnitude = st.session_state.form_data["min_magnitude"]
+
+    regions = [region.replace("&", "").replace(
+        "(", "").replace(")", "").replace(",", "").replace(" ", "_") for region in regions]
+
+    topic_names = [f"{region}_{min_magnitude}" for region in regions]
+
+    topic_arns = get_topic_arns(topic_names, cursor)
+
+    for topic_arn in topic_arns:
+
+        if contact_preference in ["Email", "Both"]:
+            sns.subscribe(
+                TopicArn=topic_arn,
+                Protocol='email',
+                Endpoint=email
+            )
+
+        if contact_preference in ["Phone", "Both"]:
+            sns.subscribe(
+                TopicArn=topic_arn,
+                Protocol='sms',
+                Endpoint=phone
+            )
 
 
 setup_page()

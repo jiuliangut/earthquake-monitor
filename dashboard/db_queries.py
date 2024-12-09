@@ -71,3 +71,45 @@ def get_data_from_range(start_date, end_date, cursor: cursor) -> pd.DataFrame:
     except Exception as e:
         logging.error("Error occurred whilst fetching live metrics: %s", e)
         raise
+
+
+def get_regions(cursor: cursor) -> list[str]:
+    """Gets all the region names"""
+
+    query = "SELECT region_name from regions"
+
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+        region_names = [row['region_name'] for row in result]
+        return region_names
+    except psycopg2.OperationalError as e:
+        logging.error(
+            "Operational error occurred connecting whilst fetching live metrics: %s", e)
+        raise
+    except Exception as e:
+        logging.error("Error occurred whilst fetching live metrics: %s", e)
+        raise
+
+
+def get_topic_arns(topic_names: list[str], cursor: cursor) -> list[str]:
+    """Gets the topic arns"""
+
+    query = "SELECT topic_arn FROM topics WHERE topic_name = %s"
+
+    topic_arns = []
+
+    for topic in topic_names:
+        try:
+            cursor.execute(query, (topic,))
+            result = cursor.fetchone()['topic_arn']
+            topic_arns.append(result)
+        except psycopg2.OperationalError as e:
+            logging.error(
+                "Operational error occurred connecting whilst fetching live metrics: %s", e)
+            raise
+        except Exception as e:
+            logging.error("Error occurred whilst fetching live metrics: %s", e)
+            raise
+
+    return topic_arns
