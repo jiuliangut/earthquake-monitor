@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 import pytest
 from datetime import datetime, timedelta
 import pandas as pd
@@ -59,7 +61,7 @@ def test_get_color_map():
 
 def test_get_last_weeks_monday():
     """Test the get_last_weeks_monday function."""
-    today = datetime(2024, 12, 9)  # Mocked current date
+    today = datetime(2024, 12, 9)
     expected_monday = (
         today - timedelta(weeks=1, days=today.weekday())).strftime("%Y-%m-%d")
     output_monday = get_last_weeks_monday()
