@@ -15,7 +15,6 @@ logging.basicConfig(level=logging.INFO,
 
 def get_connection() -> connection:
     """ Establishes a connection with database. """
-    load_dotenv()
 
     logging.info("Attempting to connect to the database")
     try:
@@ -114,8 +113,10 @@ def seed_topics_table(topic_arns: dict, cursor: cursor, conn: connection):
         raise
 
 
-conn = get_connection()
-cursor_ = get_cursor(conn)
+if __name__ == "__main__":
+    load_dotenv()
+    conn = get_connection()
+    cursor_ = get_cursor(conn)
 
-sns_client = boto3.client('sns')
-create_sns_topic()
+    sns_client = boto3.client('sns')
+    create_sns_topic()
