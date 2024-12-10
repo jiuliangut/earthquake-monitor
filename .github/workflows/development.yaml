@@ -85,6 +85,7 @@ jobs:
         id: pytest
         run: |
           pytest --disable-warnings > test-results.txt
+          echo "Exit code: $?"
           pass_count=$(grep -oP '(?<== )\d+(?= passed)' test-results.txt || echo "0")
           fail_count=$(grep -oP '(?<== )\d+(?= failed)' test-results.txt || echo "0")
           skip_count=$(grep -oP '(?<== )\d+(?= skipped)' test-results.txt || echo "0")
