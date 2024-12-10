@@ -1,7 +1,6 @@
 """Streamlit Dashboard for earthquake monitor system"""
 
 from datetime import datetime, timedelta
-import warnings
 import pandas as pd
 import streamlit as st
 import pydeck as pdk
@@ -9,10 +8,6 @@ import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from dotenv import load_dotenv
 from db_queries import get_connection, get_cursor, get_data_from_range
-
-
-warnings.filterwarnings(
-    "ignore", category=DeprecationWarning, module="botocore.auth")
 
 
 BUCKET_NAME = "c14-earthquake-monitor-storage"
