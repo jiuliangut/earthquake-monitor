@@ -84,12 +84,12 @@ jobs:
       - name: Run pytest
         id: pytest
         run: |
-          pytest --disable-warnings > test-results.txt
-          echo "Exit code: $?"
+          pytest > test-results.txt
           pass_count=$(grep -oP '(?<== )\d+(?= passed)' test-results.txt || echo "0")
           fail_count=$(grep -oP '(?<== )\d+(?= failed)' test-results.txt || echo "0")
           skip_count=$(grep -oP '(?<== )\d+(?= skipped)' test-results.txt || echo "0")
-          total_count=$((pass_count + fail_count + skip_count))
+          warning_count=$(grep -oP '(?<== )\d+(?= warning)' test-results.txt || echo "0")
+          total_count=$((pass_count + fail_count + skip_count + warning_count))
           echo "PASS_COUNT=$pass_count" >> $GITHUB_ENV
           echo "TOTAL_COUNT=$total_count" >> $GITHUB_ENV
 
