@@ -62,7 +62,7 @@ def endpoint_get_earthquakes_between_date():
     sort = request.args.get("sort")
 
     if not start_date:
-        return jsonify({"error": "start_date must be given"}), 400
+        return jsonify({"error": "start_date must be given"}), 404
 
     try:
         start_date = datetime.strptime(
