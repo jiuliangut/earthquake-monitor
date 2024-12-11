@@ -40,8 +40,12 @@ def endpoint_get_magnitude():
 
     if not min_magnitude:
         min_magnitude = -1.0
+    else:
+        min_magnitude = float(min_magnitude)
     if not max_magnitude:
         max_magnitude = 10.0
+    else:
+        max_magnitude = float(max_magnitude)
 
     if min_magnitude >= max_magnitude:
         return jsonify({"error": "min_magnitude must be less than max_magnitude"}), 400
