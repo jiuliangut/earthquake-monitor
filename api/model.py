@@ -4,6 +4,8 @@ import logging
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extensions import connection
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -31,7 +33,7 @@ def get_connection() -> connection:
         raise
 
 
-def get_required_features(rds_connection: connection) -> pd.DataFrame:
+def get_required_features_from_db(rds_connection: connection) -> pd.DataFrame:
     '''Function to extract the required features for the ML code from the RDS'''
     query = """SELECT latitude, longitude, magnitude
                FROM earthquakes"""
@@ -40,6 +42,25 @@ def get_required_features(rds_connection: connection) -> pd.DataFrame:
     return earthquake_features
 
 
-if __name__ == "__main__":
+def train_model(model, features: pd.DataFrame) -> None:
+    '''Function to train the ML model'''
+    feature_train, _, magnitude_train, _ = train_test_split(
+        features[['latitude', 'longitude']], features['magnitude'], train_size=0.7, test_size=0.3)
+    model.fit(feature_train, magnitude_train)
+    return
+
+
+def make_prediction(latitude: float, longitude: float) -> float:
+    '''Function to make a prediction on a magnitude for specific long and lat values'''
+    load_dotenv()
     db_connection = get_connection()
-    print(get_required_features(db_connection))
+    features = get_required_features_from_db(db_connection)
+    rf_model = RandomForestRegressor()
+    train_model(rf_model, features)
+    prediction = rf_model.predict(pd.DataFrame(
+        [{"latitude": latitude, "longitude": longitude}]))
+    return prediction
+
+
+if __name__ == "__main__":
+    print(make_prediction(51.5, -0.12))

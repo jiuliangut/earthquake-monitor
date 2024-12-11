@@ -9,3 +9,4 @@ python-dotenv
 flask
 boto3
 reportlab
+scikit-learn
