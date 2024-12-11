@@ -173,7 +173,7 @@ def setup_sidebar(file) -> None:
     """Sets up the Streamlit sidebar"""
 
     st.sidebar.download_button(
-        label="Download Weekly report as PDF",
+        label="Download Weekly Report",
         data=file,
         file_name="earthquake_weekly_report.pdf",
         mime="application/pdf"

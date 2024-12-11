@@ -72,7 +72,7 @@ def setup_page() -> None:
 def get_dates() -> datetime.date:
     """Filters teh dataframe by date"""
     selected_date_range = st.date_input(
-        "Select Date Range", value=(datetime(2024, 12, 1), datetime.today()))
+        "Select Date Range", value=(datetime.today() - timedelta(weeks=1), datetime.today()))
 
     if isinstance(selected_date_range, tuple) and len(selected_date_range) == 2:
         start_date, end_date = selected_date_range
@@ -207,7 +207,7 @@ def setup_sidebar(file) -> None:
     """Sets up the Streamlit sidebar"""
 
     st.sidebar.download_button(
-        label="Download Weekly report as PDF",
+        label="Download Weekly Report",
         data=file,
         file_name="earthquake_weekly_report.pdf",
         mime="application/pdf"
