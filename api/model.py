@@ -1,4 +1,5 @@
-'''Module that creates an ML model that helps predict the magnitude of an earthquake at a specific location'''
+'''Module that creates an ML model that predicts 
+the magnitude of an earthquake at a specific location'''
 import os
 import pandas as pd
 import logging
