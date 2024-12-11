@@ -143,8 +143,6 @@ def endpoint_earthquake_prediction():
 
     prediction = make_prediction(latitude, longitude).tolist()
 
-    print(prediction)
-
     if not prediction:
         return jsonify({"error": "Unexpected server error"}), 500
 
