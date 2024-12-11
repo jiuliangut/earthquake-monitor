@@ -5,6 +5,7 @@ from database import (get_earthquake_by_id,
                       get_earthquakes_by_magnitude,
                       get_earthquakes_by_date,
                       get_earthquakes_by_alert_level)
+from model import make_prediction
 
 app = Flask(__name__)
 
@@ -39,11 +40,15 @@ def endpoint_get_magnitude():
 
     if not min_magnitude:
         min_magnitude = -1.0
+    else:
+        min_magnitude = float(min_magnitude)
     if not max_magnitude:
         max_magnitude = 10.0
+    else:
+        max_magnitude = float(max_magnitude)
 
     if min_magnitude >= max_magnitude:
-        jsonify({"error": "min_magnitude must be less than max_magnitude"}), 400
+        return jsonify({"error": "min_magnitude must be less than max_magnitude"}), 400
 
     earthquakes = get_earthquakes_by_magnitude(min_magnitude, max_magnitude)
 
@@ -101,6 +106,51 @@ def endpoint_earthquakes_by_alert_colour(colour: str):
     if not earthquakes:
         return jsonify({"error": "No earthquakes found"}), 404
     return jsonify(earthquakes), 200
+
+
+def check_length_of_coordinates(coordiante: float):
+    """Ensures that the coordinates are 6 decimal points"""
+    if '.' in str(coordiante) and len(str(coordiante).split('.')[1]) > 6:
+        return round(coordiante, 6)
+    return coordiante
+
+
+@app.route("/earthquakes/predict")
+def endpoint_earthquake_prediction():
+    """Returns the predicted magnitude of an earthquake with given coordinates"""
+    latitude = request.args.get("lat")
+    longitude = request.args.get("long")
+
+    if not latitude or not longitude:
+        return jsonify({"error": "both lat and long must be given"}), 400
+
+    if not isinstance(latitude, float):
+        try:
+            latitude = float(latitude)
+        except:
+            return jsonify({"error": "lat must be in float format"}), 400
+
+    if not -90.0 <= latitude <= 90.0:
+        return jsonify({"error": "lat must be between -90.0 and 90.0"}), 400
+
+    if not isinstance(longitude, float):
+        try:
+            longitude = float(longitude)
+        except:
+            return jsonify({"error": "long must be in float format"}), 400
+
+    if not -180.0 <= longitude <= 180.0:
+        return jsonify({"error": "long must be between -90.0 and 90.0"}), 400
+
+    latitude = check_length_of_coordinates(latitude)
+    longitude = check_length_of_coordinates(longitude)
+
+    prediction = make_prediction(latitude, longitude).tolist()
+
+    if not prediction:
+        return jsonify({"error": "Unexpected server error"}), 500
+
+    return prediction
 
 
 if __name__ == "__main__":
