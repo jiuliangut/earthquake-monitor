@@ -104,6 +104,7 @@ def lambda_handler(event, context):
             topic_arn = get_topic_arn(topic, rds_cursor)
             try:
                 sns_client.publish(TopicArn=topic_arn,
+                                   Subject=f"Earthquake Warning",
                                    Message=f"""Warning! Alert Level {earthquake['alert'].title()}
 Earthquake of magnitude {earthquake['magnitude']} {earthquake['location']} ({earthquake['latitude']:.2f},\
 {earthquake['longitude']:.2f}) at {earthquake['at']}
