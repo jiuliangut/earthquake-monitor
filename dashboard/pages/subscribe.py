@@ -1,5 +1,3 @@
-"""Subscription page where users can subscribe to SNS topics for earthquake alerts"""
-
 # pylint: disable=line-too-long
 
 import re
@@ -12,6 +10,9 @@ from db_queries import get_connection, get_cursor, get_regions, get_topic_arns
 
 BUCKET_NAME = "c14-earthquake-monitor-storage"
 
+MAIN_LOGO = "main_logo.png"
+SIDE_LOGO = "main_logo.png"
+
 
 def setup_page():
     """Sets up the subscribe page."""
@@ -20,6 +21,8 @@ def setup_page():
         layout="wide", initial_sidebar_state="collapsed")
 
     load_dotenv()
+
+    st.logo(SIDE_LOGO, icon_image=MAIN_LOGO)
 
     conn = get_connection()
     cursor_ = get_cursor(conn)
@@ -41,15 +44,14 @@ def setup_header():
     emoji_left, title, emoji_right = st.columns((1, 2, 1))
 
     with emoji_left:
-        st.title("🌍🌲")
+        st.write("")
 
     with title:
-        st.markdown("<h1 style='text-align: centre;'>Subscribe for Earthquake Alerts</h1>",
+        st.markdown("<h1 style='text-align: center; padding: 16px;'>Subscribe for Earthquake Alerts</h1>",
                     unsafe_allow_html=True)
 
     with emoji_right:
-        st.markdown("<h1 style='text-align: right;'>🌲🌍</h1>",
-                    unsafe_allow_html=True)
+        st.write("")
 
 
 def setup_subscription_form(cursor_, sns_client, regions):
@@ -64,7 +66,9 @@ def setup_subscription_form(cursor_, sns_client, regions):
 
         contact_preference = st.radio(
             "How would you like to be contacted?",
-            options=["Email", "Phone", "Both"]
+            options=["Email", "Phone", "Both"],
+            key="contact_preference",
+            help="Select how you'd like to be contacted for earthquake alerts."
         )
 
         form_data = st.session_state.form_data
@@ -77,16 +81,22 @@ def setup_subscription_form(cursor_, sns_client, regions):
             if contact_preference in ["Email", "Both"]:
                 email = st.text_input(
                     "Email", placeholder="example@gmail.com",
-                    value=form_data["email"])
+                    value=form_data["email"], key="email",
+                    help="Enter your email address for earthquake alerts."
+                )
 
             if contact_preference in ["Phone", "Both"]:
                 phone = st.text_input(
                     "Phone Number", placeholder="07123456789",
-                    value=form_data["phone"])
+                    value=form_data["phone"], key="phone",
+                    help="Enter your phone number for earthquake alerts."
+                )
 
             selected_regions = st.multiselect(
                 "Regions", options=regions, placeholder="Choose a region",
-                default=form_data["regions"])
+                default=form_data["regions"], key="regions",
+                help="Select the regions you want to receive alerts for."
+            )
 
             min_magnitude = select_min_magnitude()
 
@@ -105,11 +115,12 @@ def select_min_magnitude():
         4: "Noticeable Earthquakes (4.0+)",
         7: "Strong Earthquakes (7.0+)",
     }
-    return st.pills(
+    return st.selectbox(
         "Minimum magnitude",
         options=option_map.keys(),
         format_func=lambda option: option_map[option],
         key="min_magnitude",
+        help="Select the minimum magnitude of earthquake you want to be alerted for."
     )
 
 
@@ -173,10 +184,11 @@ def setup_sidebar(file) -> None:
     """Sets up the Streamlit sidebar"""
 
     st.sidebar.download_button(
-        label="Download Weekly report as PDF",
+        label="Download Weekly Report",
         data=file,
         file_name="earthquake_weekly_report.pdf",
-        mime="application/pdf"
+        mime="application/pdf",
+        help="Download the latest weekly earthquake report in PDF format."
     )
 
 

@@ -9,70 +9,80 @@ from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from dotenv import load_dotenv
 from db_queries import get_connection, get_cursor, get_data_from_range
 
-
 BUCKET_NAME = "c14-earthquake-monitor-storage"
+
+MAIN_LOGO = "main_logo.png"
+SIDE_LOGO = "side_logo.png"
 
 
 def setup_page() -> None:
     """Sets up Streamlit page"""
-    st.set_page_config(page_title="Earthquake Monitor System",
-                       page_icon="🌏", layout="wide", initial_sidebar_state="auto")
+    st.set_page_config(
+        page_title="Earthquake Monitor System",
+        page_icon="🌏",
+        layout="wide",
+        initial_sidebar_state="auto",
+    )
 
     load_dotenv()
+
+    st.logo(SIDE_LOGO, icon_image=MAIN_LOGO)
 
     pdf = download_pdf_from_s3()
 
     if pdf:
         setup_sidebar(pdf)
 
-    emoji_left, title, emoji_right = st.columns((1, 1.5, 1))
-
-    with emoji_left:
-        st.title("🌍🌲")
+    _, title, _ = st.columns((1, 1.5, 1), gap="medium")
 
     with title:
-        st.markdown("<h1 style='text-align: centre;'>Earthquake Monitor System</h1>",
-                    unsafe_allow_html=True)
-
-    with emoji_right:
-        st.markdown("<h1 style='text-align: right;'>🌲🌍</h1>",
-                    unsafe_allow_html=True)
+        st.markdown(
+            "<h1 style='text-align: center; padding: 8px;'>Earthquake Monitor System</h1>",
+            unsafe_allow_html=True,
+        )
 
     conn = get_connection()
     cursor_ = get_cursor(conn)
 
-    left, right = st.columns(2)
+    _, main_centre, _ = st.columns([1, 15, 1])
 
-    with left:
-        date_range = get_dates()
+    with main_centre:
 
-    with right:
-        min_magnitude = st.slider("Minimum magnitude", 0.0, 12.0, step=0.1)
+        left, right = st.columns(2, gap="medium")
 
-    if date_range:
-        start_date, end_date = date_range
-        filtered_data = get_data_from_range(start_date, end_date, cursor_)
+        with left:
+            date_range = get_dates()
 
-        if not filtered_data.empty:
+        with right:
+            min_magnitude = st.slider("Minimum magnitude", 0.0, 12.0, step=0.1)
 
-            earthquake_df = validate_df(filtered_data)
+        if date_range:
+            start_date, end_date = date_range
+            filtered_data = get_data_from_range(start_date, end_date, cursor_)
 
-            earthquake_df = filtered_data[filtered_data['magnitude']
-                                          > min_magnitude]
+            if not filtered_data.empty:
 
-            earthquake_map(earthquake_df)
+                earthquake_df = validate_df(filtered_data)
 
-            recent_table(earthquake_df)
+                earthquake_df = filtered_data[filtered_data['magnitude']
+                                              > min_magnitude]
 
-            biggest_earthquake_table(earthquake_df)
-        else:
-            st.warning("There is no data for this time frame")
+                earthquake_map(earthquake_df)
+
+                recent_table(earthquake_df)
+
+                biggest_earthquake_table(earthquake_df)
+            else:
+                st.warning("There is no data for this time frame")
 
 
 def get_dates() -> datetime.date:
-    """Filters teh dataframe by date"""
+    """Filters the dataframe by date"""
+
     selected_date_range = st.date_input(
-        "Select Date Range", value=(datetime(2024, 12, 1), datetime.today()))
+        "Select Date Range",
+        value=(datetime.today() - timedelta(weeks=1), datetime.today()),
+    )
 
     if isinstance(selected_date_range, tuple) and len(selected_date_range) == 2:
         start_date, end_date = selected_date_range
@@ -86,10 +96,8 @@ def get_dates() -> datetime.date:
 def validate_df(earthquake_df: pd.DataFrame) -> pd.DataFrame:
     """Converts decimal data type to float"""
     earthquake_df['latitude'] = earthquake_df['latitude'].astype(float)
-    earthquake_df['longitude'] = earthquake_df['longitude'].astype(
-        float)
-    earthquake_df['magnitude'] = earthquake_df['magnitude'].astype(
-        float)
+    earthquake_df['longitude'] = earthquake_df['longitude'].astype(float)
+    earthquake_df['magnitude'] = earthquake_df['magnitude'].astype(float)
     earthquake_df['depth'] = earthquake_df['depth'].astype(float)
     earthquake_df['cdi'] = earthquake_df['cdi'].astype(float)
 
@@ -102,9 +110,12 @@ def earthquake_map(earthquake_df: pd.DataFrame) -> None:
     point_layer = create_point_layer(map_df)
     tooltip = create_tooltip()
 
+    st.markdown("<div style='padding: 16px;'>", unsafe_allow_html=True)
     chart = pdk.Deck(point_layer, tooltip=tooltip)
     map_data = st.pydeck_chart(
-        chart, on_select="rerun", selection_mode="multi-object")
+        chart, on_select="rerun", selection_mode="multi-object"
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
 
     display_selected_earthquake_details(map_data)
 
@@ -121,7 +132,7 @@ def prepare_map_data(earthquake_df: pd.DataFrame) -> pd.DataFrame:
 def get_color_map() -> dict:
     """Returns the mapping of alert types to RGB color values"""
     return {
-        "green": [0, 255, 0],
+        "green": [102, 187, 106],
         "yellow": [255, 255, 0],
         "orange": [255, 140, 0],
         "red": [255, 0, 0],
@@ -140,7 +151,7 @@ def create_point_layer(map_df: pd.DataFrame) -> pdk.Layer:
         get_radius="size",
         radius_min_pixels=5,
         radius_max_pixels=1000,
-        get_color="colour"
+        get_color="colour",
     )
 
 
@@ -148,7 +159,7 @@ def create_tooltip() -> dict:
     """Creates the tooltip for map visualization"""
     return {
         "html": """
-        <div>
+        <div style='padding: 8px;'>
             <span style="color: orange; font-weight: bold;">Location:</span>
             <span style="color: white;">{place}</span><br>
             <span style="color: orange; font-weight: bold;">Time:</span>
@@ -173,6 +184,8 @@ def display_selected_earthquake_details(map_data) -> None:
         selected_df = pd.DataFrame(selected_objects)
         selected_df = selected_df.drop(
             columns=['size', 'colour'], errors='ignore')
+        selected_df.columns = selected_df.columns.str.replace(
+            '_', ' ', regex=False).str.title()
         st.dataframe(selected_df, hide_index=True, use_container_width=True)
     else:
         st.info("No earthquakes selected.")
@@ -180,9 +193,15 @@ def display_selected_earthquake_details(map_data) -> None:
 
 def recent_table(earthquake_df: pd.DataFrame) -> None:
     """Gets the 5 most recent earthquakes"""
+    st.markdown("<div style='padding: 16px;'>", unsafe_allow_html=True)
     recent_df = earthquake_df.sort_values(by="time", ascending=False).head(5)
-    st.subheader("5 Most Recent Earthquakes")
+    recent_df = recent_df.drop(
+        columns=['size', 'colour'], errors='ignore')
+    recent_df.columns = recent_df.columns.str.replace(
+        '_', ' ', regex=False).str.title()
+    st.subheader("Five Most Recent Earthquakes")
     st.dataframe(recent_df, hide_index=True, use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def biggest_earthquake_table(earthquake_df: pd.DataFrame) -> None:
@@ -199,19 +218,25 @@ def biggest_earthquake_table(earthquake_df: pd.DataFrame) -> None:
         biggest_earthquake = last_week_earthquakes.loc[
             last_week_earthquakes["magnitude"].idxmax()
         ]
-        st.dataframe(biggest_earthquake.to_frame().T,
-                     hide_index=True, use_container_width=True)
+
+        biggest_earthquake = biggest_earthquake.to_frame().T
+        biggest_earthquake.columns = biggest_earthquake.columns.str.replace(
+            '_', ' ', regex=False).str.title()
+
+        st.dataframe(biggest_earthquake, hide_index=True,
+                     use_container_width=True)
 
 
 def setup_sidebar(file) -> None:
     """Sets up the Streamlit sidebar"""
-
+    st.sidebar.markdown("<div style='padding: 16px;'>", unsafe_allow_html=True)
     st.sidebar.download_button(
-        label="Download Weekly report as PDF",
+        label="Download Weekly Report",
         data=file,
         file_name="earthquake_weekly_report.pdf",
-        mime="application/pdf"
+        mime="application/pdf",
     )
+    st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
 
 def get_last_weeks_monday() -> str:
