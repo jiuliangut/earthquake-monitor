@@ -45,6 +45,14 @@ API to allow technical users to query the database and extract information in re
 - 📄 **Description**: Get earthquakes fo a specific alert level
 - 📋 **Query Parameters**:
   - `colour` (string, required). Filter earthquakes by alert level: 
-    - `green`, `yellow`, `orange`, `red`
+    - `green`, `yellow`, `red`
 - 💡 **Example**:
   GET `/earthquakes/alert/colour=red`
+
+### 6️⃣ Get a Prediction Magnitude of the Next Earthquake
+- 🛠️ **Endpoint**: `GET /earthquakes/predict`
+- 📋 **Query Parameters**:
+  - `lat` (string: required): Latitude coordinate
+  - `long` (string: required): Longitude coordinate
+- 💡 **Example**: 
+  GET `/earthquakes/predict?lat=30.0&long=-120.0`

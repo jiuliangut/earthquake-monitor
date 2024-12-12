@@ -22,9 +22,9 @@ The Earthquake Monitor Dashboard enables users to explore and interact with eart
 - View earthquake data from selected date ranges.
 - Visualize earthquakes on a dynamic interactive world map.
 - Filter earthquakes by minimum magnitude.
-- 
+  
 See details of:
-- Recent Earthquakes
+- 5 Most Recent Earthquakes
 - Biggest Earthquake of the Week
 ### 2️⃣ Subscription Service
 - Subscribe to earthquake alerts via Email, Phone, or Both.
@@ -37,7 +37,7 @@ Download the weekly earthquake report as a PDF directly from AWS S3.
  
 ## 🚀 Getting Started
 Prerequisites
-- Python 3.9+
+- Python 3.10+
 - Required Python packages:
   ``` pip install -r requirements.txt```
 
@@ -45,11 +45,11 @@ Prerequisites
 
 1. Dashboard
 
-    ```streamlit run earthquake_dashboard.py```
+    ```streamlit run dashboard.py```
 
  2. Subscription Page
    
-    ```streamlit run subscribe_page.py```
+    ```streamlit run pages/subscribe.py```
 
 ## 📋 How to Use
 ### 1️⃣ Dashboard
@@ -91,7 +91,7 @@ Prerequisites
 - Both: Get alerts on both platforms.
 
 ## ⚙️ Environment Variables
-Ensure the following environment variables are set in a .env file:
+Ensure the following environment variables are set in a `.env` file:
 ```
 ACCESS_KEY_ID=your_aws_access_key
 SECRET_ACCESS_KEY=your_aws_secret_access_key
@@ -99,7 +99,7 @@ SECRET_ACCESS_KEY=your_aws_secret_access_key
 
 ## 🌍 AWS S3 Integration
 - Bucket Name: c14-earthquake-monitor-storage
-- Weekly Report: PDFs named in the format <YYYY-MM-DD>-data.pdf.
+- Weekly Report: PDFs named in the format `YYYY-MM-DD`-data.pdf.
 
 ## 📈 Visualization
 - Built using Streamlit and PyDeck for interactive data visualization.
