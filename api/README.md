@@ -45,7 +45,7 @@ API to allow technical users to query the database and extract information in re
 - 📄 **Description**: Get earthquakes fo a specific alert level
 - 📋 **Query Parameters**:
   - `colour` (string, required). Filter earthquakes by alert level: 
-    - `green`, `yellow`, `red`
+    - `green`, `yellow`, `orange`, `red`
 - 💡 **Example**:
   GET `/earthquakes/alert/colour=red`
 
