@@ -12,8 +12,11 @@ from psycopg2.extensions import connection
 import pandas as pd
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -131,6 +134,27 @@ def make_pdf(data: pd.DataFrame) -> None:
     """Generates a PDF from the provided dataframe"""
     logging.info("Writing data to PDF: %s", PDF_FILE)
     styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        name="TitleStyle",
+        fontName="Helvetica-Bold",
+        fontSize=18,
+        alignment=1,
+        spaceAfter=20,
+    )
+    title_text = Paragraph("Weekly Earthquake Summary", title_style)
+    icon_path = "../diagrams/geovigil_logo.png"
+    icon = Image(icon_path, width=1.0 * inch,
+                 height=1.0 * inch)
+
+    title = Table(
+        [[icon, title_text]],
+        colWidths=[0.6 * inch, None],
+        style=[
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ],
+    )
+
     header_styles = styles['BodyText']
     header_styles.fontName = "Helvetica-Bold"
     table_data = [
@@ -161,7 +185,7 @@ def make_pdf(data: pd.DataFrame) -> None:
     data_table = Table(table_data, colWidths=COL_WIDTHS)
     data_table.setStyle(style)
     line_space = Spacer(width=0, height=20)
-    pdf.build([summary_table, line_space, data_table])
+    pdf.build([title, summary_table, line_space, data_table])
     logging.info("Data successfully written to %s", PDF_FILE)
 
 
