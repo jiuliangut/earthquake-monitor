@@ -114,18 +114,19 @@ earthquake_etl/
 ### **Database Setup**
 Initialize the database schema:
 ```bash
-psql -H <host> -P <port> -U <username> -d <database_name> -W -f schema.sql
+psql -h <host> -p <port> -U <username> -d <database_name> -f schema.sql
 ```
 
 ### **Run the ETL Pipeline**
 To execute the ETL pipeline:
 ```bash
-python etl.py
+python3 etl.py
 ```
 
 ### **Run Tests**
 To run the tests:
 ```bash
+pytest test_extract.py
 pytest test_transform.py
 pytest test_load.py
 ```

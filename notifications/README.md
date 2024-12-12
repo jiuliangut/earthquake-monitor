@@ -15,7 +15,7 @@ This module handles the processing of earthquake data, determines the affected r
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.9+
+- Python 3.10+
 - Required packages:
   
     ```pip install -r requirements.txt```

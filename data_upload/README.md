@@ -18,7 +18,7 @@ This script extracts earthquake data from an Amazon RDS database, formats it int
 ## ⚙️ Configuration
 
 
-Set up the environment variables in a .env file:
+Set up the environment variables in a `.env` file:
 
 
 ```
@@ -38,14 +38,14 @@ BUCKET_NAME=your_s3_bucket_name
 Run the script locally:
 
 
-```python script_name.py```
+```python3 extract.py```
 
 
 This will:
 
 
 - Extract data from the database.
-- Generate a PDF file in the /tmp directory.
+- Generate a PDF file in the `/tmp` directory.
 - Upload the PDF to the configured S3 bucket.
 
 
