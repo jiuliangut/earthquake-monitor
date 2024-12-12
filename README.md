@@ -2,7 +2,7 @@
 ![Pytest Score](.github/badges/test.svg)
 
 
-# 🌍💥 c14 Earthquake Monitor 
+# 🌍💥 C14 Earthquake Monitor 
 
 ## 🌍 Project Overview
 
@@ -14,8 +14,11 @@ The Earthquake Monitor project continuously ingests real-time earthquake data fr
 
 ## 🗺️ Project Map
 
+- api
 - dashboard
+- data_upload
 - diagrams
+- notifications
 - pipeline
 - terraform
 
@@ -28,32 +31,26 @@ The Earthquake Monitor project continuously ingests real-time earthquake data fr
 1. **Docker + ECR for ETL Deployment:**
 Using Docker allows for consistent development and runtime environments. Pushing the ETL to Amazon ECR ensures seamless integration with AWS Lambda, improving deployment speed and scalability.
 
-2. **AWS Lambda for ETL Processing:**
-Lambda provides a serverless, cost-effective solution for running the ETL every minute, ensuring high availability and automatic scaling without server management overhead.
+2. **AWS Lambda:**
+Lambda provides a serverless, cost-effective solution for running the ETL, short-to-long term data storage processing and alert notification via SNS, ensuring high availability and automatic scaling without server management overhead.
 
-3. **EventBridge Scheduler:**
+1. **EventBridge Scheduler:**
 EventBridge is used to trigger the Lambda on a strict schedule, ensuring timely data extraction and user notifications. This decouples scheduling logic from application code, improving maintainability.
 
-4. **Amazon RDS (Postgres):**
+1. **Amazon RDS (Postgres):**
 RDS provides a managed relational database solution with automated backups, scaling, and maintenance. Postgres is chosen for its robust support for geospatial data, essential for earthquake monitoring.
 
-5. **Amazon ECS for Streamlit Hosting:**
+1. **Amazon ECS for Streamlit Hosting:**
 ECS offers scalable container orchestration to host Streamlit. This enables users to access real-time data analysis via a web interface without worrying about infrastructure scaling.
 
-6. **EC2 for Custom API Hosting:**
+1. **EC2 for Custom API Hosting:**
 EC2 provides full control over the environment for hosting a custom API. This flexibility ensures technical users can query earthquake data efficiently with tailored endpoints.
 
-7. **S3 for Long-term Data Storage:**
+1. **S3 for Long-term Data Storage:**
 S3 offers highly durable and cost-effective storage for historical earthquake data. This enables users to access historical data via Streamlit, enhancing analytical capabilities.
 
-8. **Lambda for Weekly Reports:**
-A second Lambda handles historical data archiving and report generation. It is cost-effective for periodic tasks and integrates seamlessly with SES to email reports to subscribed users.
-
-9. **AWS Step Functions + SNS:**
+1. **AWS Step Functions + SNS:**
 Step Functions orchestrate user notification workflows, ensuring users are alerted based on custom criteria. SNS provides a scalable, easy-to-integrate solution for broadcasting notifications across multiple channels
-
-10. **SES for Email Notifications:**
-Amazon SES ensures reliable email delivery for user reports and notifications, with built-in support for monitoring delivery metrics and compliance.
 
 ---
 
@@ -80,13 +77,17 @@ In your terminal:
 **Step 1:** Clone this repo to your local machine
 
 
-   ```git clone https://github.com/jiuliangut/earthquake-monitor.git```
+   ```
+   git clone https://github.com/jiuliangut/earthquake-monitor.git
+   ```
 
 
 **Step 2:** Navigate into the cloned repository:
 
 
-   ```cd earthquake-monitor```
+   ```
+   cd earthquake-monitor
+   ```
 
 
 **Step 3:** Set up the virtual environment:
@@ -100,7 +101,9 @@ In your terminal:
 **Step 4:** Install all required dependencies from the `requirements.txt` file:
 
 
-   ```pip3 install -r requirements.txt```
+   ```
+   pip3 install -r requirements.txt
+   ```
 
 
 ## Setup Overview
@@ -111,7 +114,7 @@ For a more in-depth setup, please refer to the following:
   - To provision the resources, please navigate to the [Terraform README](./terraform/README.md) in the `terraform` folder for a detailed step-by-step guide to setting up the necessary infrastructure.
 
 2. 🔄 **ETL Pipeline:**
-  - To test the project locally, please navigate to the [Pipeline README](./pipeline/README.md) in the `pipeline' folder for details on the prerequisites, install requirements etc. as well as the dockerisation process for running the project on the cloud.
+  - To test the project locally, please navigate to the [Pipeline README](./pipeline/README.md) in the `pipeline` folder for details on the prerequisites, install requirements etc. as well as the dockerisation process for running the project on the cloud.
 
 
 3. 🔌 **API**
@@ -128,7 +131,7 @@ For a more in-depth setup, please refer to the following:
 | Full Name          | GitHub Username                                           | Primary Role  | Secondary Role       |
 |--------------------|-----------------------------------------------------------|---------------|----------------------|
 | Jiulian Gutierrez  | [jiuliangut](https://github.com/jiuliangut)               | Data Engineer | Project Manager      |
-| Jakup Poskrop      | [Jakub-Poskrop](https://github.com/Jakub-Poskrop)         | Data Engineer | Quality Assurance    |
+| Jakub Poskrop      | [Jakub-Poskrop](https://github.com/Jakub-Poskrop)         | Data Engineer | Quality Assurance    |
 | Qasim Rafiq        | [qrafiq1](https://github.com/qrafiq1)                     | Data Engineer | Quality Assurance    |
 | Fahad Rahman       | [Fahi28](https://github.com/Fahi28)                       | Data Engineer | Architect            |
 | Krishna Seechurn   | [S1mpySloth](https://github.com/S1mpySloth)               | Data Engineer | Architect            |
