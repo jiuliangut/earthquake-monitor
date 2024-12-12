@@ -17,7 +17,7 @@ This repository contains the infrastructure as code (IaC) for the **C14 Earthqua
 The infrastructure comprises the following AWS services:
 - 🗄️ **RDS (PostgreSQL)**: Stores processed earthquake data.
 - 📦 **S3**: Provides storage for raw and processed data.
-- 🪜 Step Functions: Orchestrates the ETL pipeline.
+- 🪜 **Step Functions**: Orchestrates the ETL pipeline.
 - 🔄 **Lambda**: Executes ETL logic.
 - ⚙️ **ECS Service**: Runs interactive dashboard as a service.
 - ⏰ **EventBridge Scheduler**: Triggers the Lambda function every minute.
@@ -33,6 +33,7 @@ Ensure you have the following:
 1. 🛠️ **Terraform v1.x** or higher installed.
 2. 💻 **AWS CLI v2** configured with credentials.
 3. Access to:
+    - 👤 Verified AWS Account
     - 🌐 A VPC with public subnets.
 
 ---
@@ -116,6 +117,9 @@ Ensure that your Terraform configuration files are valid:
 
 ```bash
 terraform validate
+```
+```bash
+terraform plan
 ```
 
 ### Deploy the infrastructure 🏗️
@@ -219,4 +223,4 @@ After deployment, by going to the AWS User Interface, confirm the following comp
    Verify the ECS service is running the task definition and the dashboard is available as a result.
 
 7. 🪜 **Step Function creation**  
-   Verify the step function has been created and is orchestrating the main etl pipeline and notification system.
+   Verify the step function has been created and is correctly orchestrating the main etl pipeline and notification system, after being triggered.
