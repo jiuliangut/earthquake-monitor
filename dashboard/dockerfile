@@ -6,11 +6,18 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 COPY db_queries.py .
-COPY dashboard.py .
+COPY Overview.py .
+
+COPY main_logo.png .
+COPY side_logo.png .
 
 RUN mkdir -p /app/pages
-COPY pages/subscribe.py /app/pages/subscribe.py
+COPY pages/Subscribe.py /app/pages/Subscribe.py
+COPY pages/Magnitude_Predictor.py /app/pages/Magnitude_Predictor.py
+
+RUN mkdir -p app/.streamlit
+COPY .streamlit/config.toml /app/.streamlit/config.toml
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "dashboard.py"]
+CMD ["streamlit", "run", "Overview.py"]
