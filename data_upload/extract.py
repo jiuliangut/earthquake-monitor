@@ -20,12 +20,13 @@ from reportlab.pdfgen import canvas
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
-QUERY = """
-        SELECT *
+QUERY = f"""
+        SELECT * 
         FROM earthquakes AS e
         JOIN alerts AS a ON e.alert_id = a.alert_id
         JOIN networks AS n ON e.network_id = n.network_id
-        JOIN magnitude AS m ON e.magnitude_id = m.magnitude_id;
+        JOIN magnitude AS m ON e.magnitude_id = m.magnitude_id
+        WHERE DATE(time) BETWEEN %s AND %s;
         """
 
 COLUMNS = ['place', 'time', 'magnitude', 'alert_type', 'felt_report_count',
@@ -89,7 +90,8 @@ def extract_data() -> pd.DataFrame:
     try:
         conn = get_connection()
         logging.info("Executing query...")
-        earthquakes = pd.read_sql(QUERY, conn)
+        earthquakes = pd.read_sql(
+            QUERY, conn, params=(datetime.today()-timedelta(7), datetime.today()-timedelta(1)))
         earthquakes = earthquakes[COLUMNS]
         earthquakes = earthquakes.rename(columns=COLUMN_NAME_MAP)
         earthquakes['Depth'] = earthquakes['Depth'].apply(
@@ -142,7 +144,7 @@ def make_pdf(data: pd.DataFrame) -> None:
         spaceAfter=20,
     )
     title_text = Paragraph("Weekly Earthquake Summary", title_style)
-    icon_path = "../diagrams/geovigil_logo.png"
+    icon_path = "geovigil_logo.png"
     icon = Image(icon_path, width=1.0 * inch,
                  height=1.0 * inch)
 
